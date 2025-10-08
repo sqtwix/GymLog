@@ -1,0 +1,92 @@
+/* Стили для дашборда */
+.dashboard-subtitle {
+  color: #666;
+  font-size: 16px;
+  margin-top: 4px;
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.calendar-section {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.section-header p {
+  color: #666;
+  font-size: 16px;
+}
+
+.selected-date-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.selected-date {
+  font-size: 18px;
+  font-weight: 600;
+  color: #667eea;
+  margin: 16px 0;
+  text-transform: capitalize;
+}
+
+.date-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.action-hint {
+  font-size: 14px;
+  color: #666;
+  font-style: italic;
+  margin-top: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-content {
+    margin-top: 16px;
+  }
+  
+  .calendar-section {
+    padding: 20px;
+  }
+  
+  .section-header h2 {
+    font-size: 20px;
+  }
+  
+  .section-header p {
+    font-size: 14px;
+  }
+  
+  .selected-date {
+    font-size: 16px;
+  }
+}

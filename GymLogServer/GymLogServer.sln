@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.13.35825.156
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GymLogServer", "GymLogServer\GymLogServer.csproj", "{CFD572DE-173B-4759-8623-A4F4E7536591}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GymLogServer.Tests", "GymLogServer.Tests\GymLogServer.Tests.csproj", "{3FE54A47-0B71-41C7-AD57-0D9A31B6B8BC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CFD572DE-173B-4759-8623-A4F4E7536591}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFD572DE-173B-4759-8623-A4F4E7536591}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFD572DE-173B-4759-8623-A4F4E7536591}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFD572DE-173B-4759-8623-A4F4E7536591}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3FE54A47-0B71-41C7-AD57-0D9A31B6B8BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3FE54A47-0B71-41C7-AD57-0D9A31B6B8BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3FE54A47-0B71-41C7-AD57-0D9A31B6B8BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3FE54A47-0B71-41C7-AD57-0D9A31B6B8BC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {43593396-E9CC-4A21-A221-26A6DCE8D7A6}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,22 @@
+@GymLogServer_HostAddress = https://localhost:7108
+
+GET {{GymLogServer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+POST {{GymLogServer_HostAddress}}/api/user/register
+Content-Type: application/json
+
+{
+  "dto": {
+    "Name": "Ivan",
+    "Email": "fgfgfg@gmail.com",
+    "Password": "333332i",
+    "Gender": "Woman",
+    "Birthday": "2000-01-01T00:00:00"
+  }
+}
+
+
+###
