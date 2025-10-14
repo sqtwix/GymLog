@@ -15,6 +15,7 @@ public class GymLogContext : DbContext
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+    public DbSet<Train> Trains { get; set; } = null!;
 
 
 }
