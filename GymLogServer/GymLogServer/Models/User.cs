@@ -8,6 +8,8 @@
         public string Email { get; set; }
         public DateTime BirthDay { get; set; }
         public string Gender { get; set; }
+
         public List<RefreshToken> RefreshTokens { get; set; } = new();
+        public List<Train> Trains { get; set; } = new();
     }
 }

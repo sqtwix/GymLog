@@ -1,0 +1,219 @@
+/* Стили для деталей тренировок */
+.train-details {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+}
+
+.no-trains {
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+}
+
+.no-trains-icon {
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.no-trains h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.no-trains p {
+  color: #666;
+  font-size: 16px;
+}
+
+.trains-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f8f9fa;
+}
+
+.trains-header h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.trains-count {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.trains-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.train-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid #667eea;
+  transition: all 0.3s ease;
+}
+
+.train-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+}
+
+.train-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.train-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.train-icon {
+  font-size: 20px;
+}
+
+.train-type-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.train-duration {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #667eea;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.train-description {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: #555;
+  font-size: 15px;
+}
+
+.train-description svg {
+  color: #667eea;
+  flex-shrink: 0;
+}
+
+.train-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.train-time svg {
+  color: #999;
+  flex-shrink: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .train-details {
+    padding: 20px;
+  }
+  
+  .trains-header {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+  
+  .trains-header h3 {
+    font-size: 18px;
+  }
+  
+  .train-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .train-duration {
+    align-self: flex-end;
+  }
+  
+  .train-card {
+    padding: 16px;
+  }
+  
+  .train-type-name {
+    font-size: 15px;
+  }
+  
+  .train-description {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .train-details {
+    padding: 16px;
+  }
+  
+  .trains-header h3 {
+    font-size: 16px;
+  }
+  
+  .trains-count {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  
+  .train-card {
+    padding: 14px;
+  }
+  
+  .train-icon {
+    font-size: 18px;
+  }
+  
+  .train-type-name {
+    font-size: 14px;
+  }
+  
+  .train-duration {
+    font-size: 12px;
+    padding: 4px 10px;
+  }
+  
+  .train-description {
+    font-size: 13px;
+  }
+  
+  .train-time {
+    font-size: 12px;
+  }
+}
+

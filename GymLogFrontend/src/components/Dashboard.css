@@ -38,27 +38,13 @@
 .selected-date-info {
   display: flex;
   flex-direction: column;
-}
-
-.selected-date {
-  font-size: 18px;
-  font-weight: 600;
-  color: #667eea;
-  margin: 16px 0;
-  text-transform: capitalize;
+  gap: 20px;
 }
 
 .date-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
-}
-
-.action-hint {
-  font-size: 14px;
-  color: #666;
-  font-style: italic;
-  margin-top: 8px;
 }
 
 /* Адаптивность */

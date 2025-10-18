@@ -146,6 +146,58 @@
   border-radius: 50%;
 }
 
+.calendar-day.has-train {
+  position: relative;
+  background: linear-gradient(135deg, #e8f5e8 0%, #d4edda 100%) !important;
+  border: 2px solid #28a745 !important;
+  color: #155724 !important;
+  font-weight: 600 !important;
+}
+
+.calendar-day.has-train:hover {
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%) !important;
+  border-color: #17a2b8 !important;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3) !important;
+}
+
+.calendar-day.has-train.today {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-color: #5a6fd8 !important;
+  font-weight: 700 !important;
+}
+
+.calendar-day.has-train.today:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%) !important;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+}
+
+.calendar-day.has-train.selected {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  color: white !important;
+  border-color: #1e7e34 !important;
+  font-weight: 700 !important;
+}
+
+.calendar-day.has-train.selected:hover {
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%) !important;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+}
+
+/* Индикатор для других месяцев */
+.calendar-day.has-train.other-month {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%) !important;
+  border-color: #6c757d !important;
+  color: #6c757d !important;
+}
+
+.calendar-day.has-train.other-month:hover {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%) !important;
+  border-color: #495057 !important;
+  color: #495057 !important;
+}
+
 /* Адаптивность */
 @media (max-width: 768px) {
   .calendar-header {
