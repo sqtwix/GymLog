@@ -40,8 +40,9 @@ namespace GymLogServer.Controllers
             return Ok(new { train.Id, train.Type, train.Description, train.Date, train.Duration, train.UserId });
         }
 
+
         [HttpGet("trains/{userId}")]
-        public async Task<IActionResult> GetTrains(int userId)
+        public async Task<IActionResult> GetTrains(int userId)  // Get all trains for user
         {
             var user = await _context.Users
             .Include(u => u.Trains)
@@ -59,6 +60,36 @@ namespace GymLogServer.Controllers
             }).OrderBy(t => t.Date);
 
             return Ok(trains);
+        }
+
+        [HttpDelete("delete/{userId}/{selectedDate}")]
+        public async Task<IActionResult> DeleteTrain(int userId, DateTime selectedDate)
+        {
+          
+            var user = await _context.Users
+                .Include(u => u.Trains)
+                .FirstOrDefaultAsync(u => u.Id == userId); ;
+
+            if (user == null) return NotFound("Пользователь не найден!");
+
+            var date = selectedDate.Date;
+
+            var trainToDelete = user.Trains  // Get trains for deleting
+                .Where(t => t.Date == date)
+                .ToList();
+
+            if (trainToDelete.Count == 0)
+                NotFound("Тренировок на указанную дату нет!");
+
+            _context.Trains.RemoveRange(trainToDelete);
+
+            _context.SaveChanges();
+
+            return Ok(new
+            {
+                    Deleted = trainToDelete.Count,
+                    Date = date
+            });   
         }
     }
 }
