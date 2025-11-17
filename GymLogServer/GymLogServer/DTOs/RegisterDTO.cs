@@ -19,6 +19,6 @@ namespace GymLogServer.DTOs
         public string Gender { get; set; } = "";
 
         [DataType(DataType.Date)]
-        public DateTime Birthday { get; set; }
+        public DateTime BirthDay { get; set; }
     }
 }

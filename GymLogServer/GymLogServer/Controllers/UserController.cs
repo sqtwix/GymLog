@@ -11,8 +11,6 @@ using GymLogServer.DTOs;
 using System.Security.Claims;
 
 
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-
 namespace GymLogServer.Controllers
 {
     [Route("api/[controller]")]
@@ -42,7 +40,7 @@ namespace GymLogServer.Controllers
                 Email = dto.Email,
                 PasswordHash = HashPassword(dto.Password),
                 Gender = dto.Gender,
-                BirthDay = DateTime.SpecifyKind(dto.Birthday, DateTimeKind.Utc)
+                BirthDay = DateTime.SpecifyKind(dto.BirthDay, DateTimeKind.Utc)
             };
 
             _context.Users.Add(user);
