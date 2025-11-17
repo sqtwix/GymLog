@@ -45,6 +45,18 @@ const Register = () => {
       return;
     }
 
+    if (!formData.gender) {
+      setError('Выберите пол');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.birthday) {
+      setError('Укажите дату рождения');
+      setLoading(false);
+      return;
+    }
+
     const result = await register(formData);
     
     if (result.success) {
@@ -132,8 +144,9 @@ const Register = () => {
                 value={formData.gender}
                 onChange={handleChange}
                 className="form-input"
+                required
               >
-                <option value="">Выберите пол</option>
+                <option value="" disabled>Выберите пол</option>
                 <option value="Мужской">Мужской</option>
                 <option value="Женский">Женский</option>
                 <option value="Другой">Другой</option>

@@ -41,10 +41,42 @@
   gap: 20px;
 }
 
+.calendar-error {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  background: #fff5f5;
+  border: 1px solid #ffc9c9;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  color: #c92a2a;
+}
+
+.calendar-error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.small-btn {
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
 .date-actions {
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+.date-actions .btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
 
 /* Адаптивность */

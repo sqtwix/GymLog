@@ -49,6 +49,17 @@ const Login = () => {
         </div>
 
         <div className="card">
+          <div className="auth-switch">
+            <span>Нет аккаунта?</span>
+            <button
+              type="button"
+              className="btn btn-secondary switch-btn"
+              onClick={() => navigate('/register')}
+            >
+              Зарегистрироваться
+            </button>
+          </div>
+
           <form onSubmit={handleSubmit} className="auth-form">
             <div className="form-group">
               <label className="form-label">

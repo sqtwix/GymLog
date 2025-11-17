@@ -1,58 +1,20 @@
-import React, { useEffect } from 'react';
-import { Clock, Dumbbell, FileText, Calendar as CalendarIcon } from 'lucide-react';
+import React, { useMemo } from 'react';
+import { Clock, FileText, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
+import { isSameDay } from 'date-fns';
 import './TrainDetails.css';
 
-const TrainDetails = ({ selectedDate, trains = [] }) => {
-  
-  // Отслеживаем изменения selectedDate и trains
-  useEffect(() => {
-    console.log('TrainDetails - useEffect сработал:', {
-      selectedDate: selectedDate?.toDateString(),
-      trainsCount: trains.length,
-      trains: trains
+const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {} }) => {
+  const safeSelectedDate = selectedDate ? new Date(selectedDate) : null;
+
+  const dayTrains = useMemo(() => {
+    if (!safeSelectedDate) return [];
+    return trains.filter(train => {
+      if (!train?.date) return false;
+      const trainDate = new Date(train.date);
+      if (Number.isNaN(trainDate.getTime())) return false;
+      return isSameDay(trainDate, safeSelectedDate);
     });
-  }, [selectedDate, trains]);
-  // Фильтруем тренировки для выбранной даты
-  const dayTrains = trains.filter(train => {
-    if (!train.date || !selectedDate) return false;
-    
-    // Пробуем разные способы парсинга даты
-    let trainDate;
-    if (typeof train.date === 'string') {
-      trainDate = new Date(train.date);
-    } else {
-      trainDate = new Date(train.date);
-    }
-    
-    const selected = new Date(selectedDate);
-    
-    // Проверяем валидность дат
-    if (isNaN(trainDate.getTime()) || isNaN(selected.getTime())) {
-      console.log('Невалидная дата:', { trainDate: train.date, selectedDate });
-      return false;
-    }
-    
-    // Нормализуем даты к началу дня для точного сравнения
-    const trainDateOnly = new Date(trainDate.getFullYear(), trainDate.getMonth(), trainDate.getDate());
-    const selectedDateOnly = new Date(selected.getFullYear(), selected.getMonth(), selected.getDate());
-    
-    const isMatch = trainDateOnly.getTime() === selectedDateOnly.getTime();
-    
-    // Отладочная информация для ВСЕХ тренировок
-    console.log('Проверка тренировки:', {
-      trainDate: trainDate.toDateString(),
-      selectedDate: selected.toDateString(),
-      trainDateOnly: trainDateOnly.toDateString(),
-      selectedDateOnly: selectedDateOnly.toDateString(),
-      isMatch,
-      train: train
-    });
-    
-    return isMatch;
-  });
-  
-  // Отладочная информация
-  console.log('TrainDetails - selectedDate:', selectedDate?.toDateString(), 'dayTrains:', dayTrains.length);
+  }, [safeSelectedDate, trains]);
 
   const formatTime = (minutes) => {
     if (minutes < 60) {
@@ -82,6 +44,18 @@ const TrainDetails = ({ selectedDate, trains = [] }) => {
     }
   };
 
+  if (!safeSelectedDate) {
+    return (
+      <div className="train-details">
+        <div className="no-trains">
+          <CalendarIcon size={48} className="no-trains-icon" />
+          <h3>Выберите день</h3>
+          <p>Нажмите на дату в календаре, чтобы увидеть план тренировки</p>
+        </div>
+      </div>
+    );
+  }
+
   if (dayTrains.length === 0) {
     return (
       <div className="train-details">
@@ -94,20 +68,50 @@ const TrainDetails = ({ selectedDate, trains = [] }) => {
     );
   }
 
+  const { loading: deleteLoading, error: deleteError, success: deleteSuccess } = deleteState;
+  const totalDuration = dayTrains.reduce((sum, train) => sum + (train.duration || 0), 0);
+
   return (
     <div className="train-details">
       <div className="trains-header">
-        <h3>Тренировки на {selectedDate.toLocaleDateString('ru-RU', {
-          weekday: 'long',
-          day: 'numeric',
-          month: 'long'
-        })}</h3>
-        <span className="trains-count">{dayTrains.length} тренировок</span>
+        <div>
+          <h3>Тренировки на {safeSelectedDate.toLocaleDateString('ru-RU', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long'
+          })}</h3>
+          <span className="trains-count">{dayTrains.length} тренировок</span>
+        </div>
+        {onDeleteDay && (
+          <div className="trains-actions">
+            {deleteSuccess && <span className="train-status success">{deleteSuccess}</span>}
+            {deleteError && <span className="train-status error">{deleteError}</span>}
+            <button
+              className="btn btn-danger delete-day-btn"
+              onClick={onDeleteDay}
+              disabled={deleteLoading}
+            >
+              <Trash2 size={16} />
+              {deleteLoading ? 'Удаление...' : 'Удалить день'}
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="trains-summary">
+        <div className="summary-item">
+          <span className="summary-label">Всего тренировок</span>
+          <strong>{dayTrains.length}</strong>
+        </div>
+        <div className="summary-item">
+          <span className="summary-label">Общая длительность</span>
+          <strong>{formatTime(totalDuration)}</strong>
+        </div>
       </div>
 
       <div className="trains-list">
         {dayTrains.map((train, index) => (
-          <div key={index} className="train-card">
+          <div key={`${train.id || index}-${train.date}`} className="train-card">
             <div className="train-header">
               <div className="train-type">
                 <span className="train-icon">{getTypeIcon(train.type)}</span>

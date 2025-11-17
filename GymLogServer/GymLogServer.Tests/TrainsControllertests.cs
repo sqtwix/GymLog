@@ -103,5 +103,43 @@ namespace GymLogServer.Tests
             var trains = Assert.IsAssignableFrom<IEnumerable<object>>(okResult.Value);
             Assert.Equal(2, trains.Count());
         }
+        [Fact]
+        public async Task GetTrains_UserNotFound_ReturnsNotFound()
+        {
+            // Arrange
+            var context = GetDbContext();
+            var controller = new TrainsController(context);
+
+            // Act - пытаемся получить тренировки несуществующего пользователя
+            var result = await controller.GetTrains(999);
+
+            // Assert
+            Assert.IsType<NotFoundObjectResult>(result);
+        }
+
+        [Fact]
+        public async Task MakeTrain_UserNotFound_ReturnsBadRequest()
+        {
+            // Arrange
+            var context = GetDbContext();
+            var controller = new TrainsController(context);
+
+            var dto = new TrainsDTO
+            {
+                Type = "Тренажерный зал",
+                Description = "Тренировка груди, рук",
+                Date = DateTime.UtcNow,
+                Duration = 90,
+                UserId = 999 // Несуществующий пользователь
+            };
+
+            // Act
+            var result = await controller.MakeTrain(dto);
+
+            // Assert
+            var badRequest = Assert.IsType<BadRequestObjectResult>(result);
+            Assert.NotNull(badRequest.Value);
+        }
     }
 }
+

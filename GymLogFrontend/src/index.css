@@ -58,6 +58,26 @@ code {
   color: white;
 }
 
+.btn-info {
+  background: linear-gradient(135deg, #17a2b8 0%, #20c997 100%);
+  color: white;
+}
+
+.btn-info:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(23, 162, 184, 0.3);
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+  box-shadow: 0 8px 25px rgba(231, 76, 60, 0.3);
+}
+
 /* Стили для форм */
 .form-group {
   margin-bottom: 20px;

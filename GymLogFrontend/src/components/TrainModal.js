@@ -1,14 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { X, Clock, Dumbbell, FileText, Calendar } from 'lucide-react';
 import { TRAIN_TYPES, GYM_DESCRIPTIONS, trainAPI, validateTrainData } from '../services/trainService';
 import './TrainModal.css';
 
+const formatInputDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getTodayStart = () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return today;
+};
+
+const getInitialDateString = (selectedDate) => {
+  const todayStart = getTodayStart();
+  const baseDate = selectedDate ? new Date(selectedDate) : new Date();
+  if (baseDate < todayStart) {
+    return formatInputDate(todayStart);
+  }
+  return formatInputDate(baseDate);
+};
+
 const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
+  const todayStart = useMemo(() => getTodayStart(), []);
+  const todayInputValue = formatInputDate(todayStart);
+
   const [formData, setFormData] = useState({
     type: '',
     description: '',
     duration: '',
-    date: selectedDate ? selectedDate.toISOString().split('T')[0] : ''
+    date: getInitialDateString(selectedDate)
   });
   const [selectedGymDescriptions, setSelectedGymDescriptions] = useState([]);
   
@@ -18,12 +43,10 @@ const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
 
   // Обновляем дату при изменении selectedDate
   useEffect(() => {
-    if (selectedDate) {
-      setFormData(prev => ({
-        ...prev,
-        date: selectedDate.toISOString().split('T')[0]
-      }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      date: getInitialDateString(selectedDate)
+    }));
   }, [selectedDate]);
 
   // Обновляем форму при изменении типа тренировки
@@ -87,10 +110,18 @@ const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
       return;
     }
 
+    const trainDateObj = new Date(formData.date);
+    trainDateObj.setHours(0, 0, 0, 0);
+
+    if (trainDateObj < todayStart) {
+      setErrors({ date: 'Нельзя планировать тренировки в прошлом' });
+      return;
+    }
+
     const trainData = {
       ...formData,
       duration: parseInt(formData.duration),
-      date: new Date(formData.date),
+      date: trainDateObj,
       userId: user.id
     };
 
@@ -123,7 +154,9 @@ const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
       setSelectedGymDescriptions([]);
       
       // Уведомляем родительский компонент
-      onTrainAdded && onTrainAdded();
+      if (onTrainAdded) {
+        await onTrainAdded();
+      }
       
       // Закрываем модальное окно
       onClose();
@@ -139,7 +172,7 @@ const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
       type: '',
       description: '',
       duration: '',
-      date: selectedDate ? selectedDate.toISOString().split('T')[0] : ''
+      date: getInitialDateString(selectedDate)
     });
     setSelectedGymDescriptions([]);
     setErrors({});
@@ -253,6 +286,7 @@ const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
               name="date"
               value={formData.date}
               onChange={handleChange}
+              min={todayInputValue}
               className={`form-input ${errors.date ? 'error' : ''}`}
               required
             />
