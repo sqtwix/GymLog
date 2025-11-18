@@ -4,8 +4,6 @@ using GymLogServer.DTOs;
 using GymLogServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text.Json;
 
 
 namespace GymLogServer.Tests

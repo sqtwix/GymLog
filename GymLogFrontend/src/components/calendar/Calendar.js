@@ -4,6 +4,23 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSa
 import { ru } from 'date-fns/locale';
 import './Calendar.css';
 
+const formatDateKey = (date) => {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getTrainDateKey = (train) => {
+  if (!train) return null;
+  if (train.dateKey) return train.dateKey;
+  if (!train.date) return null;
+  const parsed = new Date(train.date);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return formatDateKey(parsed);
+};
+
 const Calendar = ({ selectedDate, onDateSelect, trains = [] }) => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [monthStart, setMonthStart] = useState(startOfMonth(currentMonth));
@@ -41,12 +58,8 @@ const Calendar = ({ selectedDate, onDateSelect, trains = [] }) => {
       const isSelected = isSameDay(day, selectedDate);
       const isToday = isSameDay(day, new Date());
       
-      const dayTrains = trains.filter(train => {
-        if (!train?.date) return false;
-        const trainDate = new Date(train.date);
-        if (Number.isNaN(trainDate.getTime())) return false;
-        return isSameDay(trainDate, day);
-      });
+      const dayKey = formatDateKey(day);
+      const dayTrains = trains.filter(train => getTrainDateKey(train) === dayKey);
       const hasTrain = dayTrains.length > 0;
 
       days.push(

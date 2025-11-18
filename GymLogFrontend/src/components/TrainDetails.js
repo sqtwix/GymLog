@@ -1,20 +1,32 @@
 import React, { useMemo } from 'react';
 import { Clock, FileText, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
-import { isSameDay } from 'date-fns';
 import './TrainDetails.css';
+
+const formatDateKey = (date) => {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getTrainDateKey = (train) => {
+  if (!train) return null;
+  if (train.dateKey) return train.dateKey;
+  if (!train.date) return null;
+  const parsed = new Date(train.date);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return formatDateKey(parsed);
+};
 
 const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {} }) => {
   const safeSelectedDate = selectedDate ? new Date(selectedDate) : null;
+  const selectedKey = safeSelectedDate ? formatDateKey(safeSelectedDate) : null;
 
   const dayTrains = useMemo(() => {
-    if (!safeSelectedDate) return [];
-    return trains.filter(train => {
-      if (!train?.date) return false;
-      const trainDate = new Date(train.date);
-      if (Number.isNaN(trainDate.getTime())) return false;
-      return isSameDay(trainDate, safeSelectedDate);
-    });
-  }, [safeSelectedDate, trains]);
+    if (!selectedKey) return [];
+    return trains.filter(train => getTrainDateKey(train) === selectedKey);
+  }, [selectedKey, trains]);
 
   const formatTime = (minutes) => {
     if (minutes < 60) {
@@ -82,7 +94,7 @@ const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {}
           })}</h3>
           <span className="trains-count">{dayTrains.length} тренировок</span>
         </div>
-        {onDeleteDay && (
+        {onDeleteDay && dayTrains.length > 0 && (
           <div className="trains-actions">
             {deleteSuccess && <span className="train-status success">{deleteSuccess}</span>}
             {deleteError && <span className="train-status error">{deleteError}</span>}

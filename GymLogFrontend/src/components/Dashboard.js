@@ -7,6 +7,23 @@ import TrainDetails from './TrainDetails';
 import { trainAPI } from '../services/trainService';
 import './Dashboard.css';
 
+const formatDateKey = (date) => {
+  if (!date) return null;
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const getTrainDateKey = (train) => {
+  if (!train) return null;
+  if (train.dateKey) return train.dateKey;
+  if (!train.date) return null;
+  const parsed = new Date(train.date);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return formatDateKey(parsed);
+};
+
 const Dashboard = () => {
   const { user, logout } = useAuth();
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -73,8 +90,8 @@ const Dashboard = () => {
     if (!confirmed) return;
 
     setDeleteState({ loading: true, error: '', success: '' });
-    const dateParam = selectedDate.toISOString().split('T')[0];
-    const result = await trainAPI.deleteTrain(user.id, dateParam);
+    const dateKey = formatDateKey(selectedDate);
+    const result = await trainAPI.deleteTrain(user.id, dateKey);
 
     if (result.success) {
       const deletedCount = result.data?.deleted ?? result.data?.Deleted ?? 0;
@@ -85,7 +102,7 @@ const Dashboard = () => {
           ? `Удалено тренировок: ${deletedCount}`
           : 'Тренировок на этот день больше нет'
       });
-      await loadTrains();
+      setTrains(prev => prev.filter(train => getTrainDateKey(train) !== dateKey));
     } else {
       setDeleteState({
         loading: false,

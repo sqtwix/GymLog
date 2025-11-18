@@ -25,6 +25,13 @@ const getInitialDateString = (selectedDate) => {
   return formatInputDate(baseDate);
 };
 
+const fromDateInput = (value) => {
+  if (!value) return null;
+  const [year, month, day] = value.split('-').map(Number);
+  if ([year, month, day].some(num => Number.isNaN(num))) return null;
+  return new Date(year, month - 1, day);
+};
+
 const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
   const todayStart = useMemo(() => getTodayStart(), []);
   const todayInputValue = formatInputDate(todayStart);
@@ -110,7 +117,11 @@ const TrainModal = ({ isOpen, onClose, selectedDate, onTrainAdded }) => {
       return;
     }
 
-    const trainDateObj = new Date(formData.date);
+    const trainDateObj = fromDateInput(formData.date);
+    if (!trainDateObj) {
+      setErrors({ date: 'Некорректная дата тренировки' });
+      return;
+    }
     trainDateObj.setHours(0, 0, 0, 0);
 
     if (trainDateObj < todayStart) {

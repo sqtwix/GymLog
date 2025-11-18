@@ -47,39 +47,7 @@ namespace GymLogServer.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("GymLogServer.Models.Train", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Trains");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("GymLogServer.Models.User", b =>
@@ -111,7 +79,7 @@ namespace GymLogServer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("GymLogServer.Models.RefreshToken", b =>
@@ -125,20 +93,9 @@ namespace GymLogServer.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("GymLogServer.Models.Train", b =>
-                {
-                    b.HasOne("GymLogServer.Models.User", null)
-                        .WithMany("Trains")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("GymLogServer.Models.User", b =>
                 {
                     b.Navigation("RefreshTokens");
-
-                    b.Navigation("Trains");
                 });
 #pragma warning restore 612, 618
         }

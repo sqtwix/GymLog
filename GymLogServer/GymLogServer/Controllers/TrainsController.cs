@@ -23,7 +23,7 @@ namespace GymLogServer.Controllers
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId);
             if (user == null)
-                return BadRequest("Пользователь не найден");
+                return BadRequest("РќРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ РЅР°Р№С‚Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ!");
 
             var train = new Train
             {
@@ -44,20 +44,20 @@ namespace GymLogServer.Controllers
         [HttpGet("trains/{userId}")]
         public async Task<IActionResult> GetTrains(int userId)  // Get all trains for user
         {
-            var user = await _context.Users
-            .Include(u => u.Trains)
-            .FirstOrDefaultAsync(u => u.Id == userId);
+            var trains = await _context.Trains
+             .Where(t => t.UserId == userId)
+             .Select(t => new
+             {
+                 t.Type,
+                 t.Description,
+                 t.Date,
+                 t.Duration
+             })
+             .OrderBy(t => t.Date)
+             .ToListAsync();
 
-            if (user == null)
-                return NotFound("Пользователь не найден");
-
-            var trains = user.Trains.Select(t => new
-            {
-                t.Type,
-                t.Description,
-                t.Date,
-                t.Duration
-            }).OrderBy(t => t.Date);
+            if (!trains.Any())
+                return NotFound("РќРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ РЅР°Р№С‚Рё С‚СЂРµРЅРёСЂРѕРІРєРё");
 
             return Ok(trains);
         }
@@ -65,31 +65,24 @@ namespace GymLogServer.Controllers
         [HttpDelete("delete/{userId}/{selectedDate}")]
         public async Task<IActionResult> DeleteTrain(int userId, DateTime selectedDate)
         {
-          
-            var user = await _context.Users
-                .Include(u => u.Trains)
-                .FirstOrDefaultAsync(u => u.Id == userId); ;
+            var date = DateTime.SpecifyKind(selectedDate.Date, DateTimeKind.Utc);
 
-            if (user == null) return NotFound("Пользователь не найден!");
-
-            var date = selectedDate.Date;
-
-            var trainToDelete = user.Trains  // Get trains for deleting
-                .Where(t => t.Date == date)
-                .ToList();
+            var trainToDelete = await _context.Trains
+                .Where(t => t.UserId == userId && t.Date.Date == date.Date)
+                .ToListAsync();
 
             if (trainToDelete.Count == 0)
-                NotFound("Тренировок на указанную дату нет!");
+                return NotFound("РќРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ РЅР°Р№С‚Рё РЅР° СЌС‚Сѓ РґР°С‚Сѓ");
 
             _context.Trains.RemoveRange(trainToDelete);
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return Ok(new
             {
-                    Deleted = trainToDelete.Count,
-                    Date = date
-            });   
+                Deleted = trainToDelete.Count,
+                Date = date
+            });
         }
     }
 }
