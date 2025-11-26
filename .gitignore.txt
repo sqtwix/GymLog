@@ -45,8 +45,7 @@ bld/
 *.snupkg
 **/packages/*
 
-# Rider
-.idea/
+
 
 # VS Code
 .vscode/

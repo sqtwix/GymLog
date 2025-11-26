@@ -11,6 +11,8 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0
 WORKDIR /app
 
 COPY --from=build /app/out .
+
+ENV ASPNETCORE_HTTP_PORTS=5198
 EXPOSE 5198
 
 ENTRYPOINT ["dotnet", "GymLogServer.dll"]
