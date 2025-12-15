@@ -53,7 +53,11 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const response = await axios.post('/api/user/login', { email, password });
-      const { token: newToken, user: userData } = response.data;
+      const data = response.data || {};
+
+      // Бэкенд возвращает Token/User с большой буквы
+      const newToken = data.token ?? data.Token;
+      const userData = data.user ?? data.User;
 
       if (!newToken || !userData) {
         throw new Error('Сервер не вернул токен или пользователя');

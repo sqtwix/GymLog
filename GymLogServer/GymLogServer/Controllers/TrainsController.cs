@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace GymLogServer.Controllers
 {
-    [Route("trains")]
+    [Route("api/trains")]
     [ApiController]
     [Authorize] // ← ВАЖНО: весь контроллер защищён
     public class TrainsController : ControllerBase
