@@ -59,9 +59,13 @@ const Dashboard = () => {
 
     setLoading(true);
     setErrorMessage('');
-    const result = await trainAPI.getTrains(user.id);
+    const result = await trainAPI.getTrains();
 
     if (result.success) {
+      console.log('Dashboard - Trains loaded:', {
+        count: result.data.length,
+        trains: result.data
+      });
       setTrains(result.data);
     } else {
       setErrorMessage(result.error || 'Не удалось загрузить тренировки');
@@ -72,6 +76,11 @@ const Dashboard = () => {
 
   const handleDateSelect = (date) => {
     const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    console.log('Dashboard - Date selected:', {
+      original: date,
+      normalized: normalizedDate,
+      dateKey: formatDateKey(normalizedDate)
+    });
     setSelectedDate(normalizedDate);
   };
 
@@ -102,7 +111,8 @@ const Dashboard = () => {
           ? `Удалено тренировок: ${deletedCount}`
           : 'Тренировок на этот день больше нет'
       });
-      setTrains(prev => prev.filter(train => getTrainDateKey(train) !== dateKey));
+      // Перезагружаем тренировки для синхронизации
+      await loadTrains();
     } else {
       setDeleteState({
         loading: false,

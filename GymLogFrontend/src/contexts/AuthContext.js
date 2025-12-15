@@ -25,72 +25,54 @@ const normalizeUser = (rawUser) => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
 
-  // Настройка axios для автоматического добавления токена
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete axios.defaults.headers.common['Authorization'];
-    }
-  }, [token]);
+  // КРИТИЧНО: сразу при загрузке приложения ставим токен в axios!
+  const savedToken = localStorage.getItem('token');
+  
+  const [token, setToken] = useState(savedToken);
 
-  // Проверка токена при загрузке приложения
+  // Восстанавливаем пользователя при загрузке
   useEffect(() => {
-    const checkAuth = async () => {
+    const loadUser = () => {
       if (token) {
-        try {
-          // Здесь можно добавить запрос для проверки токена
-          // Пока просто устанавливаем пользователя из localStorage
-          const savedUser = localStorage.getItem('user');
-          if (savedUser) {
-            setUser(normalizeUser(JSON.parse(savedUser)));
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+          try {
+            const parsed = JSON.parse(savedUser);
+            setUser(normalizeUser(parsed));
+          } catch (e) {
+            console.error('Ошибка парсинга пользователя из localStorage');
           }
-        } catch (error) {
-          console.error('Auth check failed:', error);
-          logout();
         }
       }
       setLoading(false);
     };
-
-    checkAuth();
+    loadUser();
   }, [token]);
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('/api/user/login', {
-        email,
-        password
-      });
-
-      const responseData = response.data || {};
-      const newToken = responseData.token || responseData.Token;
-      const userData = responseData.user || responseData.User;
+      const response = await axios.post('/api/user/login', { email, password });
+      const { token: newToken, user: userData } = response.data;
 
       if (!newToken || !userData) {
-        throw new Error('Ответ сервера не содержит токен или данные пользователя');
+        throw new Error('Сервер не вернул токен или пользователя');
       }
 
       const normalizedUser = normalizeUser(userData);
 
+      // Сохраняем всё
       setToken(newToken);
       setUser(normalizedUser);
-
-      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-      
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(normalizedUser));
-      
+
+      console.log('Успешный вход! Пользователь:', normalizedUser.id);
       return { success: true };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Ошибка входа:', error);
       const message = error.response?.data || error.message || 'Ошибка входа';
-      return { 
-        success: false, 
-        error: message 
-      };
+      return { success: false, error: message };
     }
   };
 
@@ -105,16 +87,11 @@ export const AuthProvider = ({ children }) => {
       };
 
       await axios.post('/api/user/register', payload);
-      
-      // После регистрации автоматически входим
       return await login(userData.email, userData.password);
     } catch (error) {
-      console.error('Register error:', error);
+      console.error('Ошибка регистрации:', error);
       const message = error.response?.data || error.message || 'Ошибка регистрации';
-      return { 
-        success: false, 
-        error: message 
-      };
+      return { success: false, error: message };
     }
   };
 
@@ -124,6 +101,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     delete axios.defaults.headers.common['Authorization'];
+    console.log('Выход выполнен');
   };
 
   const value = {

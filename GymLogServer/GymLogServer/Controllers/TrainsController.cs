@@ -1,29 +1,58 @@
 using GymLogServer.Context;
 using GymLogServer.DTOs;
 using GymLogServer.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using System.Security.Claims;
 
 namespace GymLogServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("trains")]
     [ApiController]
+    [Authorize] // ← ВАЖНО: весь контроллер защищён
     public class TrainsController : ControllerBase
     {
         private readonly GymLogContext _context;
-
         public TrainsController(GymLogContext context)
         {
             _context = context;
         }
 
+
+        // ИЗМЕНИЛ: больше НЕ ПЕРЕДАЁМ userId в URL!
+        [HttpGet]
+        public async Task<IActionResult> GetTrains()
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized("Invalid token");
+
+            var trains = await _context.Trains
+                .Where(t => t.UserId == userId)
+                .Select(t => new
+                {
+                    t.Id,
+                    t.Type,
+                    t.Description,
+                    t.Date,
+                    t.Duration
+                })
+                .OrderBy(t => t.Date)
+                .ToListAsync();
+
+            return Ok(trains);
+        }
+
+
         [HttpPost("train")]
         public async Task<IActionResult> MakeTrain([FromBody] TrainsDTO dto)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == dto.UserId);
-            if (user == null)
-                return BadRequest("Не получилось найти пользователя!");
+            if (dto == null) return BadRequest("Payload is null");
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized("Invalid token");
 
             var train = new Train
             {
@@ -31,58 +60,35 @@ namespace GymLogServer.Controllers
                 Description = dto.Description,
                 Date = DateTime.SpecifyKind(dto.Date, DateTimeKind.Utc),
                 Duration = dto.Duration,
-                UserId = dto.UserId
+                UserId = userId
             };
 
             _context.Trains.Add(train);
             await _context.SaveChangesAsync();
 
-            return Ok(new { train.Id, train.Type, train.Description, train.Date, train.Duration, train.UserId });
+            return Ok(new { train.Id, train.Type, train.Description, train.Date, train.Duration });
         }
 
 
-        [HttpGet("trains/{userId}")]
-        public async Task<IActionResult> GetTrains(int userId)  // Get all trains for user
+        [HttpDelete("delete/{date}")]
+        public async Task<IActionResult> DeleteTrain(DateTime date)
         {
-            var trains = await _context.Trains
-             .Where(t => t.UserId == userId)
-             .Select(t => new
-             {
-                 t.Type,
-                 t.Description,
-                 t.Date,
-                 t.Duration
-             })
-             .OrderBy(t => t.Date)
-             .ToListAsync();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
+                return Unauthorized("Invalid token");
 
-            if (!trains.Any())
-                return NotFound("Не получилось найти тренировки");
-
-            return Ok(trains);
-        }
-
-        [HttpDelete("delete/{userId}/{selectedDate}")]
-        public async Task<IActionResult> DeleteTrain(int userId, DateTime selectedDate)
-        {
-            var date = DateTime.SpecifyKind(selectedDate.Date, DateTimeKind.Utc);
-
-            var trainToDelete = await _context.Trains
-                .Where(t => t.UserId == userId && t.Date.Date == date.Date)
+            var targetDate = DateTime.SpecifyKind(date.Date, DateTimeKind.Utc);
+            var trainsToDelete = await _context.Trains
+                .Where(t => t.UserId == userId && t.Date.Date == targetDate)
                 .ToListAsync();
 
-            if (trainToDelete.Count == 0)
-                return NotFound("Не получилось найти на эту дату");
+            if (!trainsToDelete.Any())
+                return NotFound("No trains found for this date");
 
-            _context.Trains.RemoveRange(trainToDelete);
-
+            _context.Trains.RemoveRange(trainsToDelete);
             await _context.SaveChangesAsync();
 
-            return Ok(new
-            {
-                Deleted = trainToDelete.Count,
-                Date = date
-            });
+            return Ok(new { message = $"Deleted {trainsToDelete.Count} trains" });
         }
     }
 }

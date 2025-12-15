@@ -121,26 +121,31 @@ namespace GymLogServer.Controllers
         }
 
         private string GenerateJwtToken(User user)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes("SuperSecretKey1234567890_!@#JWT_KEY_2025"); // должен совпадать с ключом в Program.cs
+{
+    var tokenHandler = new JwtSecurityTokenHandler();
+    
+    // ИСПОЛЬЗУЕМ ТОТ ЖЕ КЛЮЧ, ЧТО И В PROGRAM.CS
+    var key = Encoding.UTF8.GetBytes("MySuperSecretKeyForGymLogApp1234567890!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)
-            };
+    var claims = new[]
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Name, user.Username ?? "User"),
+        new Claim(ClaimTypes.Email, user.Email)
+    };
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1), // токен живёт 1 час
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
+    var tokenDescriptor = new SecurityTokenDescriptor
+    {
+        Subject = new ClaimsIdentity(claims),
+        Expires = DateTime.UtcNow.AddHours(12),
+        SigningCredentials = new SigningCredentials(
+            new SymmetricSecurityKey(key),
+            SecurityAlgorithms.HmacSha256Signature
+        )
+    };
 
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
+    var token = tokenHandler.CreateToken(tokenDescriptor);
+    return tokenHandler.WriteToken(token);
+}
     }
 }

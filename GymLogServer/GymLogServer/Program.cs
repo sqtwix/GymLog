@@ -6,13 +6,20 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Добавляем контроллеры и OpenAPI
 builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-builder.Services.AddEndpointsApiExplorer();   
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
 
-// КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: берём connection string из переменной окружения!
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
                     ?? Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection")
                     ?? throw new InvalidOperationException("Connection string not found!");
@@ -20,36 +27,54 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<GymLogContext>(options =>
     options.UseNpgsql(connectionString));
 
-// JWT
+// === РљР›Р®Р§ РћР”РРќ РќРђ Р’РЎРЃ! ===
+var jwtKeyString = "MySuperSecretKeyForGymLogApp1234567890!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!";
+var jwtKey = Encoding.UTF8.GetBytes(jwtKeyString);
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(jwtKey),
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("SuperSecretKey12345"))
+            ClockSkew = TimeSpan.FromMinutes(5)
+        };
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = context =>
+            {
+                Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                Console.WriteLine("Token validated successfully");
+                return Task.CompletedTask;
+            }
         };
     });
 
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
-// Автомиграции только в Production (т.е. в Docker)
 if (app.Environment.IsProduction())
 {
     try
     {
         using var scope = app.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<GymLogContext>();
-        app.Logger.LogInformation("Применяем миграции...");
+        app.Logger.LogInformation("РџСЂРёРјРµРЅСЏСЋ РјРёРіСЂР°С†РёРё...");
         db.Database.Migrate();
-        app.Logger.LogInformation("Миграции успешно применены!");
+        app.Logger.LogInformation("РњРёРіСЂР°С†РёРё РїСЂРёРјРµРЅРµРЅС‹!");
     }
     catch (Exception ex)
     {
-        app.Logger.LogError(ex, "ОШИБКА ПРИ ПРИМЕНЕНИИ МИГРАЦИЙ!");
+        app.Logger.LogError(ex, "РћС€РёР±РєР° РїСЂРё РјРёРіСЂР°С†РёРё!");
         throw;
     }
 }
@@ -59,9 +84,11 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("AllowAll");
+
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
