@@ -67,6 +67,12 @@ namespace GymLogServer.Controllers
             if (user == null)
                 return BadRequest("Пользователь не найден");
 
+            if (_context == null)
+                return StatusCode(500, "Database context not available");
+
+            if (User == null)
+                return Unauthorized("User not authenticated");
+
             var hashedPassword = HashPassword(dto.Password);
             if (user.PasswordHash != hashedPassword)
                 return BadRequest("Неверный email или пароль");

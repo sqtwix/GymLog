@@ -61,6 +61,12 @@ namespace GymLogServer.Controllers
             if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
                 return Unauthorized("Invalid token");
 
+            var user = await _context.Users.FindAsync(userId); 
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
             var train = new Train
             {
                 Type = dto.Type,
