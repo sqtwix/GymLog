@@ -10,17 +10,24 @@ namespace GymLogServer.Controllers
 {
     [Route("api/trains")]
     [ApiController]
-    [Authorize] // ← ВАЖНО: весь контроллер защищён
+    [Authorize]
     public class TrainsController : ControllerBase
     {
+        /* Trains controller 
+            Methods:
+                GetTrains - method for sending all trains of current user
+                MakeTrain - method for inserting new train in DB
+                DeleteTrain - method for deleting train by choosen date
+        */
+
         private readonly GymLogContext _context;
+
         public TrainsController(GymLogContext context)
         {
             _context = context;
         }
 
 
-        // ИЗМЕНИЛ: больше НЕ ПЕРЕДАЁМ userId в URL!
         [HttpGet]
         public async Task<IActionResult> GetTrains()
         {

@@ -12,10 +12,20 @@ using System.Security.Claims;
 
 namespace GymLogServer.Controllers
 {
+
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase
     {
+        /* User controller 
+            Methods:
+                Register - method for inserting user in DB
+                Login - method for sending JWT and user`s data
+                Refresh - method for sending refresh token
+                GenerateRefreshToken - method for generating refresh token
+                HashPassword - method for making hash from current user password
+                GenerateJwtToken - method for generating JWT
+        */
 
         private readonly GymLogContext _context;
 
@@ -24,10 +34,11 @@ namespace GymLogServer.Controllers
             _context = context;
         }
 
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDTO dto)
         {
-            if (!ModelState.IsValid)  // Correct data or not
+            if (!ModelState.IsValid)  
                 return BadRequest(ModelState); 
 
             if (await _context.Users.AnyAsync(u => u.Email == dto.Email))
@@ -47,6 +58,7 @@ namespace GymLogServer.Controllers
 
             return Ok(new { user.Id, user.Username, user.Email, user.Gender, user.BirthDay });
         }
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
@@ -77,6 +89,7 @@ namespace GymLogServer.Controllers
             });
         }
 
+
         [HttpPost("refresh")]
         public async Task<IActionResult> Refresh([FromBody] string refreshToken)
         {
@@ -105,6 +118,7 @@ namespace GymLogServer.Controllers
             });
         }
 
+
         private string GenerateRefreshToken()
         {
             var randomNumber = new byte[32];
@@ -113,39 +127,41 @@ namespace GymLogServer.Controllers
             return Convert.ToBase64String(randomNumber);
         }
 
+
         private string HashPassword(string password)
         {
             using var sha256 = SHA256.Create();
             var bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+
             return Convert.ToBase64String(bytes);
         }
 
         private string GenerateJwtToken(User user)
-{
-    var tokenHandler = new JwtSecurityTokenHandler();
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
     
-    // ИСПОЛЬЗУЕМ ТОТ ЖЕ КЛЮЧ, ЧТО И В PROGRAM.CS
-    var key = Encoding.UTF8.GetBytes("MySuperSecretKeyForGymLogApp1234567890!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+            // ИСПОЛЬЗУЕМ ТОТ ЖЕ КЛЮЧ, ЧТО И В PROGRAM.CS
+            var key = Encoding.UTF8.GetBytes("MySuperSecretKeyForGymLogApp1234567890!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
-    var claims = new[]
-    {
-        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new Claim(ClaimTypes.Name, user.Username ?? "User"),
-        new Claim(ClaimTypes.Email, user.Email)
-    };
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username ?? "User"),
+                new Claim(ClaimTypes.Email, user.Email)
+            };
 
-    var tokenDescriptor = new SecurityTokenDescriptor
-    {
-        Subject = new ClaimsIdentity(claims),
-        Expires = DateTime.UtcNow.AddHours(12),
-        SigningCredentials = new SigningCredentials(
-            new SymmetricSecurityKey(key),
-            SecurityAlgorithms.HmacSha256Signature
-        )
-    };
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddHours(12),
+                SigningCredentials = new SigningCredentials(
+                    new SymmetricSecurityKey(key),
+                    SecurityAlgorithms.HmacSha256Signature
+                )
+            };
 
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-    return tokenHandler.WriteToken(token);
-}
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
+        }
     }
 }
