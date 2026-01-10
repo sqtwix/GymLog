@@ -43,13 +43,37 @@ const normalizeTrain = (train) => {
   let dateKey = null;
   
   if (rawDate) {
-    // Парсим дату - бэкенд возвращает в UTC
+    // Парсим дату - бэкенд возвращает в UTC (например, "2026-01-10T00:00:00Z")
     const dateObj = new Date(rawDate);
     if (!Number.isNaN(dateObj.getTime())) {
-      // Нормализуем дату - берем только год, месяц, день (игнорируем время и часовой пояс)
-      // Это важно, так как бэкенд возвращает UTC, а нам нужно сравнение по дате без времени
       normalizedDate = dateObj;
-      dateKey = formatDateKey(dateObj);
+      
+      // ВАЖНО: Для сравнения используем ЛОКАЛЬНЫЕ компоненты даты, 
+      // так как пользователь видит календарь и выбирает дату в своем часовом поясе
+      // Когда пользователь выбирает 10 января, он видит 10 января в своем календаре,
+      // и мы должны сравнивать с локальной датой тренировки
+      // Если бэкенд вернул "2026-01-10T00:00:00Z", то в UTC это 10 января,
+      // но в локальном времени это может быть 9 или 11 января в зависимости от часового пояса
+      // Поэтому мы используем ЛОКАЛЬНЫЕ компоненты для создания ключа
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      dateKey = `${year}-${month}-${day}`;
+      
+      // Отладочное логирование
+      if (process.env.NODE_ENV === 'development') {
+        console.log('normalizeTrain - нормализация даты:', {
+          rawDate,
+          dateObj: dateObj.toISOString(),
+          localYear: dateObj.getFullYear(),
+          localMonth: dateObj.getMonth() + 1,
+          localDay: dateObj.getDate(),
+          utcYear: dateObj.getUTCFullYear(),
+          utcMonth: dateObj.getUTCMonth() + 1,
+          utcDay: dateObj.getUTCDate(),
+          dateKey
+        });
+      }
     }
   }
   
@@ -63,13 +87,13 @@ const normalizeTrain = (train) => {
   };
 };
 
+// Форматирует дату в ключ YYYY-MM-DD используя локальные компоненты
+// Это важно, так как пользователь видит календарь в своем часовом поясе
 const formatDateKey = (date) => {
   if (!date) return null;
   const d = new Date(date);
   if (Number.isNaN(d.getTime())) return null;
-  // Важно: используем UTC методы для консистентности с бэкендом
-  // Но для сравнения дат нам нужна локальная дата (год, месяц, день)
-  // Поэтому используем getFullYear, getMonth, getDate (локальные методы)
+  // Используем локальные методы - так пользователь видит дату в календаре
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');

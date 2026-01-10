@@ -1,66 +1,145 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Clock, FileText, Calendar as CalendarIcon, Trash2 } from 'lucide-react';
 import './TrainDetails.css';
 
-const formatDateKey = (date) => {
-  if (!date) return null;
-  const d = new Date(date);
-  if (Number.isNaN(d.getTime())) return null;
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-};
-
+// Получает dateKey из тренировки (используется для сравнения)
+// Тренировки уже нормализованы в trainService с локальным dateKey
 const getTrainDateKey = (train) => {
   if (!train) return null;
-  // Используем dateKey если есть, иначе вычисляем из date
+  // Используем dateKey если есть (уже нормализован с локальными компонентами)
   if (train.dateKey) return train.dateKey;
   if (!train.date) return null;
+  // Если dateKey нет, вычисляем из date используя локальные методы
   const parsed = new Date(train.date);
   if (Number.isNaN(parsed.getTime())) return null;
-  return formatDateKey(parsed);
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {} }) => {
   const [dayTrains, setDayTrains] = useState([]);
 
-  const safeSelectedDate = selectedDate ? new Date(selectedDate) : null;
-  const selectedKey = safeSelectedDate ? formatDateKey(safeSelectedDate) : null;
+  // Создаем безопасную дату из selectedDate используя useMemo для оптимизации
+  const safeSelectedDate = useMemo(() => {
+    if (!selectedDate) return null;
+    
+    // Если это Date объект, нормализуем его (убираем время)
+    if (selectedDate instanceof Date) {
+      const normalized = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+      return Number.isNaN(normalized.getTime()) ? null : normalized;
+    }
+    
+    // Если это строка или другой тип, пытаемся преобразовать
+    const parsed = new Date(selectedDate);
+    if (Number.isNaN(parsed.getTime())) return null;
+    
+    // Нормализуем - убираем время
+    return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+  }, [selectedDate]);
+  
+  // Формируем ключ для выбранной даты используя useMemo
+  // ВАЖНО: Используем ЛОКАЛЬНЫЕ компоненты года, месяца, дня для создания ключа
+  const selectedKey = useMemo(() => {
+    if (!safeSelectedDate) return null;
+    
+    const year = safeSelectedDate.getFullYear();
+    const month = safeSelectedDate.getMonth();
+    const day = safeSelectedDate.getDate();
+    const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    
+    console.log('TrainDetails - Формирование selectedKey:', {
+      selectedDate: selectedDate?.toString(),
+      safeSelectedDate: {
+        date: safeSelectedDate.toString(),
+        year,
+        month,
+        day,
+        iso: safeSelectedDate.toISOString()
+      },
+      selectedKey: key
+    });
+    
+    return key;
+  }, [safeSelectedDate, selectedDate]);
 
   useEffect(() => {
+    console.log('TrainDetails - useEffect вызван:', {
+      selectedDate: selectedDate?.toString(),
+      safeSelectedDate: safeSelectedDate ? {
+        date: safeSelectedDate.toString(),
+        year: safeSelectedDate.getFullYear(),
+        month: safeSelectedDate.getMonth(),
+        day: safeSelectedDate.getDate(),
+        iso: safeSelectedDate.toISOString()
+      } : null,
+      selectedKey,
+      trainsCount: trains?.length || 0
+    });
+    
     if (!selectedKey) {
+      console.log('TrainDetails - Нет selectedKey, очищаем тренировки');
+      setDayTrains([]);
+      return;
+    }
+    
+    if (!trains || trains.length === 0) {
+      console.log('TrainDetails - Нет тренировок для фильтрации');
       setDayTrains([]);
       return;
     }
     
     console.log('TrainDetails - Фильтрация тренировок:', {
       selectedKey,
+      selectedDate: safeSelectedDate ? {
+        local: safeSelectedDate.toLocaleDateString('ru-RU'),
+        iso: safeSelectedDate.toISOString(),
+        year: safeSelectedDate.getFullYear(),
+        month: safeSelectedDate.getMonth(),
+        day: safeSelectedDate.getDate()
+      } : null,
       trainsCount: trains.length,
-      trains: trains.map(t => ({
-        id: t.id,
-        dateKey: getTrainDateKey(t),
-        date: t.date
-      }))
+      trains: trains.map(t => {
+        const trainDate = t.date ? new Date(t.date) : null;
+        const trainKey = getTrainDateKey(t);
+        return {
+          id: t.id,
+          type: t.type,
+          dateKey: trainKey,
+          date: trainDate ? {
+            iso: trainDate.toISOString(),
+            local: trainDate.toLocaleDateString('ru-RU'),
+            localYear: trainDate.getFullYear(),
+            localMonth: trainDate.getMonth(),
+            localDay: trainDate.getDate()
+          } : null
+        };
+      })
     });
     
     const filtered = trains.filter(train => {
       const trainKey = getTrainDateKey(train);
       const matches = trainKey === selectedKey;
-      if (matches) {
-        console.log('TrainDetails - Найдена тренировка:', {
-          trainId: train.id,
-          trainKey,
-          selectedKey,
-          match: matches
-        });
-      }
+      
+      console.log('TrainDetails - Сравнение:', {
+        trainId: train.id,
+        trainType: train.type,
+        trainKey,
+        selectedKey,
+        match: matches,
+        trainDate: train.date ? new Date(train.date).toISOString() : null
+      });
+      
       return matches;
     });
     
-    console.log('TrainDetails - Отфильтрованные тренировки:', filtered.length);
+    console.log('TrainDetails - Отфильтрованные тренировки:', {
+      count: filtered.length,
+      trains: filtered.map(t => ({ id: t.id, type: t.type }))
+    });
     setDayTrains(filtered);
-  }, [selectedKey, trains]);
+  }, [selectedKey, trains, safeSelectedDate]);
 
   const formatTime = (minutes) => {
     if (!minutes) return '0м';
@@ -88,11 +167,6 @@ const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {}
           <CalendarIcon size={48} className="no-trains-icon" />
           <h3>Нет тренировок</h3>
           <p>На этот день ничего не запланировано</p>
-          {process.env.NODE_ENV === 'development' && (
-            <p style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
-              Debug: selectedKey={selectedKey}, trains={trains.length}
-            </p>
-          )}
         </div>
       </div>
     );

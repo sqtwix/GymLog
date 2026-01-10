@@ -1,65 +1,92 @@
 /* Стили для деталей тренировок */
 .train-details {
-  background: white;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   height: fit-content;
+  border: 1px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+}
+
+.train-details:hover {
+  box-shadow: 0 12px 40px rgba(102, 126, 234, 0.15);
 }
 
 .no-trains {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   color: #666;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  border: 2px dashed #dee2e6;
 }
 
 .no-trains-icon {
-  color: #ccc;
-  margin-bottom: 16px;
+  color: #adb5bd;
+  margin-bottom: 20px;
+  opacity: 0.6;
 }
 
 .no-trains h3 {
-  font-size: 20px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #495057;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .no-trains p {
-  color: #666;
+  color: #6c757d;
   font-size: 16px;
+  font-weight: 500;
 }
 
 .trains-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f8f9fa;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
+  border-bottom: 3px solid;
+  border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
 }
 
 .trains-header > div:first-child {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  flex: 1;
 }
 
 .trains-header h3 {
-  font-size: 20px;
-  font-weight: 700;
-  color: #333;
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   margin: 0;
   text-transform: capitalize;
+  letter-spacing: -0.5px;
 }
 
 .trains-count {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  padding: 6px 12px;
-  border-radius: 20px;
+  padding: 8px 16px;
+  border-radius: 25px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  display: inline-block;
+  align-self: flex-start;
 }
 
 .trains-actions {
@@ -77,19 +104,38 @@
 }
 
 .summary-item {
-  background: #f1f3f5;
-  border-radius: 12px;
-  padding: 12px 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 16px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
+  border: 2px solid rgba(102, 126, 234, 0.1);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.summary-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+.summary-item strong {
+  font-size: 24px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .summary-label {
-  font-size: 13px;
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
   color: #6c757d;
+  font-weight: 600;
 }
 
 .delete-day-btn {
@@ -97,7 +143,21 @@
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  padding: 10px 16px;
+  padding: 12px 20px;
+  font-weight: 700;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.2);
+}
+
+.delete-day-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.3);
+}
+
+.delete-day-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .train-status {
@@ -119,16 +179,38 @@
 }
 
 .train-card {
-  background: #f8f9fa;
-  border-radius: 12px;
-  padding: 20px;
-  border-left: 4px solid #667eea;
-  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  border-radius: 16px;
+  padding: 24px;
+  border-left: 5px solid;
+  border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.train-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
 }
 
 .train-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 35px rgba(102, 126, 234, 0.2);
+  border-left-width: 6px;
+}
+
+.train-card:hover::before {
+  transform: scaleX(1);
 }
 
 .train-header {
@@ -149,48 +231,72 @@
 }
 
 .train-type-name {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.3px;
 }
 
 .train-duration {
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: white;
-  padding: 6px 12px;
-  border-radius: 20px;
+  gap: 8px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 16px;
+  border-radius: 25px;
   font-size: 14px;
-  font-weight: 500;
-  color: #667eea;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
+}
+
+.train-duration:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.train-duration svg {
+  color: white;
 }
 
 .train-description {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 12px;
-  color: #555;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  color: #495057;
   font-size: 15px;
+  line-height: 1.6;
+  border-left: 3px solid #667eea;
 }
 
 .train-description svg {
   color: #667eea;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .train-time {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #666;
+  color: #6c757d;
   font-size: 14px;
+  font-weight: 600;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(102, 126, 234, 0.1);
 }
 
 .train-time svg {
-  color: #999;
+  color: #667eea;
   flex-shrink: 0;
 }
 

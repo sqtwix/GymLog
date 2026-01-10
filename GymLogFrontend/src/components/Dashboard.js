@@ -7,11 +7,16 @@ import TrainDetails from './TrainDetails';
 import { trainAPI } from '../services/trainService';
 import './Dashboard.css';
 
+// Форматирует дату в ключ YYYY-MM-DD используя локальные компоненты
+// Это важно, так как пользователь видит календарь в своем часовом поясе
 const formatDateKey = (date) => {
   if (!date) return null;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return null;
+  // Используем локальные методы - так пользователь видит дату в календаре
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
@@ -91,10 +96,22 @@ const Dashboard = () => {
   };
 
   const handleDateSelect = (date) => {
+    // Нормализуем дату - убираем время, оставляем только дату
     const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     console.log('Dashboard - Date selected:', {
-      original: date,
-      normalized: normalizedDate,
+      original: {
+        date: date.toString(),
+        year: date.getFullYear(),
+        month: date.getMonth(),
+        day: date.getDate()
+      },
+      normalized: {
+        date: normalizedDate.toString(),
+        year: normalizedDate.getFullYear(),
+        month: normalizedDate.getMonth(),
+        day: normalizedDate.getDate(),
+        iso: normalizedDate.toISOString()
+      },
       dateKey: formatDateKey(normalizedDate)
     });
     setSelectedDate(normalizedDate);

@@ -4,21 +4,31 @@ import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSa
 import { ru } from 'date-fns/locale';
 import './Calendar.css';
 
+// Форматирует дату в ключ YYYY-MM-DD используя локальные компоненты
+// Это важно, так как пользователь видит календарь в своем часовом поясе
 const formatDateKey = (date) => {
   if (!date) return null;
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return null;
+  // Используем локальные методы - так пользователь видит дату в календаре
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 };
 
 const getTrainDateKey = (train) => {
   if (!train) return null;
+  // Используем dateKey если есть (уже нормализован с локальными компонентами)
   if (train.dateKey) return train.dateKey;
   if (!train.date) return null;
+  // Если dateKey нет, вычисляем из date используя локальные методы
   const parsed = new Date(train.date);
   if (Number.isNaN(parsed.getTime())) return null;
-  return formatDateKey(parsed);
+  const year = parsed.getFullYear();
+  const month = String(parsed.getMonth() + 1).padStart(2, '0');
+  const day = String(parsed.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 const Calendar = ({ selectedDate, onDateSelect, trains = [] }) => {
@@ -67,6 +77,15 @@ const Calendar = ({ selectedDate, onDateSelect, trains = [] }) => {
           key={day.toString()}
           className={`calendar-day ${!isCurrentMonth ? 'other-month' : ''} ${isSelected ? 'selected' : ''} ${isToday ? 'today' : ''} ${hasTrain ? 'has-train' : ''}`}
           onClick={() => {
+            console.log('Calendar - Клик по дню:', {
+              day: day.toString(),
+              year: day.getFullYear(),
+              month: day.getMonth(),
+              date: day.getDate(),
+              dayKey: formatDateKey(day),
+              hasTrain,
+              trainsCount: dayTrains.length
+            });
             onDateSelect(day);
           }}
           title={hasTrain ? `Тренировок: ${dayTrains.length}` : ''}
