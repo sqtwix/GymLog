@@ -25,11 +25,14 @@ const normalizeUser = (rawUser) => {
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // КРИТИЧНО: сразу при загрузке приложения ставим токен в axios!
-  const savedToken = localStorage.getItem('token');
-  
-  const [token, setToken] = useState(savedToken);
+  const [token, setToken] = useState(() => {
+    const savedToken = localStorage.getItem('token');
+    // КРИТИЧНО: сразу устанавливаем токен в axios при инициализации
+    if (savedToken) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${savedToken}`;
+    }
+    return savedToken;
+  });
 
   // Восстанавливаем пользователя при загрузке
   useEffect(() => {
@@ -50,11 +53,47 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, [token]);
 
+  // Обновляем axios headers при изменении токена
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+    }
+  }, [token]);
+
+  // Обработка 401 - истекший токен (для всех axios запросов)
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      (error) => {
+        if (error.response?.status === 401) {
+          // Токен истек - очищаем всё
+          console.warn('Токен истек, выполняю logout');
+          setToken(null);
+          setUser(null);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          delete axios.defaults.headers.common['Authorization'];
+          // Перенаправляем на страницу логина
+          if (window.location.pathname !== '/login' && window.location.pathname !== '/register') {
+            window.location.href = '/login';
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
+
   const login = async (email, password) => {
     try {
       const response = await axios.post('/api/user/login', { email, password });
       const data = response.data || {};
-
+      
       // Бэкенд возвращает Token/User с большой буквы
       const newToken = data.token ?? data.Token;
       const userData = data.user ?? data.User;
@@ -65,11 +104,12 @@ export const AuthProvider = ({ children }) => {
 
       const normalizedUser = normalizeUser(userData);
 
-      // Сохраняем всё
+      // Сохраняем всё и устанавливаем в axios
       setToken(newToken);
       setUser(normalizedUser);
       localStorage.setItem('token', newToken);
       localStorage.setItem('user', JSON.stringify(normalizedUser));
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
 
       console.log('Успешный вход! Пользователь:', normalizedUser.id);
       return { success: true };

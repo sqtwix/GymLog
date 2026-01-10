@@ -55,20 +55,36 @@ const Dashboard = () => {
   }, [selectedDate]);
 
   const loadTrains = async () => {
-    if (!user?.id) return;
+    if (!user?.id) {
+      console.warn('Dashboard - нет user.id, пропускаем загрузку тренировок');
+      return;
+    }
 
     setLoading(true);
     setErrorMessage('');
+    // Бэкенд берет userId из JWT токена
     const result = await trainAPI.getTrains();
 
     if (result.success) {
       console.log('Dashboard - Trains loaded:', {
         count: result.data.length,
-        trains: result.data
+        trains: result.data.map(t => ({
+          id: t.id,
+          type: t.type,
+          date: t.date,
+          dateKey: t.dateKey
+        }))
       });
-      setTrains(result.data);
+      setTrains(result.data || []);
     } else {
-      setErrorMessage(result.error || 'Не удалось загрузить тренировки');
+      const errorMsg = result.error || 'Не удалось загрузить тренировки';
+      setErrorMessage(errorMsg);
+      console.error('Dashboard - Ошибка загрузки тренировок:', errorMsg);
+      
+      // Если токен истек, interceptor уже обработает это
+      if (errorMsg === 'Не авторизован') {
+        // Дополнительная проверка - возможно нужно перенаправить
+      }
     }
 
     setLoading(false);
@@ -93,23 +109,22 @@ const Dashboard = () => {
   };
 
   const handleDeleteTrain = async () => {
-    if (!user?.id || !selectedDate) return;
+    if (!selectedDate) return;
 
     const confirmed = window.confirm('Удалить все тренировки на выбранный день?');
     if (!confirmed) return;
 
     setDeleteState({ loading: true, error: '', success: '' });
     const dateKey = formatDateKey(selectedDate);
-    const result = await trainAPI.deleteTrain(user.id, dateKey);
+    // Бэкенд берет userId из JWT токена
+    const result = await trainAPI.deleteTrain(dateKey);
 
     if (result.success) {
-      const deletedCount = result.data?.deleted ?? result.data?.Deleted ?? 0;
+      const message = result.data?.message || 'Тренировки удалены';
       setDeleteState({
         loading: false,
         error: '',
-        success: deletedCount
-          ? `Удалено тренировок: ${deletedCount}`
-          : 'Тренировок на этот день больше нет'
+        success: message
       });
       // Перезагружаем тренировки для синхронизации
       await loadTrains();

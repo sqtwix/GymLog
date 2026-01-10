@@ -5,6 +5,7 @@ import './TrainDetails.css';
 const formatDateKey = (date) => {
   if (!date) return null;
   const d = new Date(date);
+  if (Number.isNaN(d.getTime())) return null;
   const year = d.getFullYear();
   const month = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
@@ -12,8 +13,13 @@ const formatDateKey = (date) => {
 };
 
 const getTrainDateKey = (train) => {
-  if (!train?.date) return null;
-  return formatDateKey(train.date);
+  if (!train) return null;
+  // Используем dateKey если есть, иначе вычисляем из date
+  if (train.dateKey) return train.dateKey;
+  if (!train.date) return null;
+  const parsed = new Date(train.date);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return formatDateKey(parsed);
 };
 
 const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {} }) => {
@@ -23,11 +29,36 @@ const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {}
   const selectedKey = safeSelectedDate ? formatDateKey(safeSelectedDate) : null;
 
   useEffect(() => {
-    if (!selectedKey || !trains.length) {
+    if (!selectedKey) {
       setDayTrains([]);
       return;
     }
-    const filtered = trains.filter(train => getTrainDateKey(train) === selectedKey);
+    
+    console.log('TrainDetails - Фильтрация тренировок:', {
+      selectedKey,
+      trainsCount: trains.length,
+      trains: trains.map(t => ({
+        id: t.id,
+        dateKey: getTrainDateKey(t),
+        date: t.date
+      }))
+    });
+    
+    const filtered = trains.filter(train => {
+      const trainKey = getTrainDateKey(train);
+      const matches = trainKey === selectedKey;
+      if (matches) {
+        console.log('TrainDetails - Найдена тренировка:', {
+          trainId: train.id,
+          trainKey,
+          selectedKey,
+          match: matches
+        });
+      }
+      return matches;
+    });
+    
+    console.log('TrainDetails - Отфильтрованные тренировки:', filtered.length);
     setDayTrains(filtered);
   }, [selectedKey, trains]);
 
@@ -57,6 +88,11 @@ const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {}
           <CalendarIcon size={48} className="no-trains-icon" />
           <h3>Нет тренировок</h3>
           <p>На этот день ничего не запланировано</p>
+          {process.env.NODE_ENV === 'development' && (
+            <p style={{ fontSize: '12px', color: '#999', marginTop: '8px' }}>
+              Debug: selectedKey={selectedKey}, trains={trains.length}
+            </p>
+          )}
         </div>
       </div>
     );
@@ -78,7 +114,7 @@ const TrainDetails = ({ selectedDate, trains = [], onDeleteDay, deleteState = {}
           </h3>
           <span className="trains-count">{dayTrains.length} шт.</span>
         </div>
-        {onDeleteDay && (
+        {onDeleteDay && dayTrains.length > 0 && (
           <div className="trains-actions">
             {deleteSuccess && <span className="train-status success">{deleteSuccess}</span>}
             {deleteError && <span className="train-status error">{deleteError}</span>}
