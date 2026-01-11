@@ -3,45 +3,48 @@ package com.example.gymlogapp
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.gymlogapp.ui.theme.GymLogAppTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.gymlogapp.api.RetrofitClient
+import com.example.gymlogapp.ui.screen.LoginScreen
+import com.example.gymlogapp.ui.screen.RegisterScreen
+// import com.example.gymlogapp.ui.screens.MainScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            GymLogAppTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
-        }
+
+        // Инициализация Retrofit с контекстом приложения (обязательно!)
+        RetrofitClient.init(this)
+
+        //setContent {
+            //GymLogTheme {  // если у тебя есть своя тема, иначе просто убери
+              //  GymLogApp()
+            //}
+                //}
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
+fun GymLogApp() {
+    val navController = rememberNavController()
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    GymLogAppTheme {
-        Greeting("Android")
+    NavHost(
+        navController = navController,
+        startDestination = "login"  // приложение всегда стартует с логина
+    ) {
+        composable("login") {
+            LoginScreen(navController)
+        }
+
+        composable("register") {
+            RegisterScreen(navController)
+        }
+
+            /* composable("main") {
+            MainScreen(navController)
+        }*/
     }
 }
