@@ -55,7 +55,6 @@ namespace GymLogServer.Controllers
         [HttpPost("train")]
         public async Task<IActionResult> MakeTrain([FromBody] TrainsDTO dto)
         {
-            if (dto == null) return BadRequest("Payload is null");
 
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
             if (userIdClaim == null || !int.TryParse(userIdClaim.Value, out int userId))
