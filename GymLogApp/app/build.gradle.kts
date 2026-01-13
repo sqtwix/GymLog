@@ -47,6 +47,8 @@ dependencies {
     // Activity + Compose integration (самое свежее на январь 2026)
     implementation("androidx.activity:activity-compose:1.12.2")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1") // или используй java.time напрямую
+
     // Compose через BOM (самый свежий стабильный декабрь 2025)
     implementation(platform("androidx.compose:compose-bom:2025.12.01"))
     implementation("androidx.compose.ui:ui")
