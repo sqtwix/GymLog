@@ -9,7 +9,7 @@ import com.example.gymlogapp.utils.Preferences
 
 object RetrofitClient {
 
-    private const val BASE_URL = "http://10.0.2.2:5198/" // для эмулятора
+    private const val BASE_URL = "http://192.168.0.11:5198/"
 
     // Сохраняем Application Context здесь (инициализируется один раз)
     private var appContext: Context? = null

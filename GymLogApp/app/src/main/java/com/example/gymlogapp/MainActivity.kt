@@ -10,20 +10,17 @@ import androidx.navigation.compose.rememberNavController
 import com.example.gymlogapp.api.RetrofitClient
 import com.example.gymlogapp.ui.screen.LoginScreen
 import com.example.gymlogapp.ui.screen.RegisterScreen
-// import com.example.gymlogapp.ui.screens.MainScreen
+import com.example.gymlogapp.ui.screen.MainScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Инициализация Retrofit с контекстом приложения (обязательно!)
         RetrofitClient.init(this)
 
-        //setContent {
-            //GymLogTheme {  // если у тебя есть своя тема, иначе просто убери
-              //  GymLogApp()
-            //}
-                //}
+        setContent {
+            GymLogApp()
+        }
     }
 }
 
@@ -33,7 +30,7 @@ fun GymLogApp() {
 
     NavHost(
         navController = navController,
-        startDestination = "login"  // приложение всегда стартует с логина
+        startDestination = "login"  // always starts from login screen
     ) {
         composable("login") {
             LoginScreen(navController)
@@ -43,8 +40,8 @@ fun GymLogApp() {
             RegisterScreen(navController)
         }
 
-            /* composable("main") {
+        composable("main") {
             MainScreen(navController)
-        }*/
+        }
     }
 }
