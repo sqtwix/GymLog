@@ -32,7 +32,7 @@ public class User {
     String email;
 
     @Column(nullable = false, updatable = false)
-    private DateFormat date;
+    private DateFormat birthDate;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Workout> trains = new ArrayList<>();
