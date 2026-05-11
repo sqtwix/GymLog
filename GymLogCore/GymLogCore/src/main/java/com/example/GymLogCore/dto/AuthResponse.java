@@ -1,6 +1,6 @@
 package com.example.GymLogCore.dto;
 
-public record AuthResponce(
+public record AuthResponse(
         String token
 ) {
 }
