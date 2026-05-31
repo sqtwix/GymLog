@@ -31,7 +31,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sess -> sess
-                        // TElls sprint to not make sessions on server(Stateless)
+                        // TElls spring to not make sessions on server(Stateless)
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authenticationProvider(authenticationProvider)

@@ -11,5 +11,6 @@ import java.util.Optional;
    Db methods for workout entity
 */
 public interface WorkoutRepository extends JpaRepository<Workout, Long> {
-    List<Workout> findByUserId(Long userId);
+    List<Workout> findAllByUserId(Long userId);
+    Optional<Workout> findByIdAndUserId(long workoutId,long userId);
 }

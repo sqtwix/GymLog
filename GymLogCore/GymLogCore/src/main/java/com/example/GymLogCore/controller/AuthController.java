@@ -19,7 +19,7 @@ public class AuthController {
     private final AuthService authService;
 
     // Endpoint for registration
-    // url: http://localhost:8080/api/auth/register
+    // url: host...8080/api/auth/register
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request) {
         AuthResponse response = authService.register(request);
@@ -27,7 +27,7 @@ public class AuthController {
     }
 
     // Endpoint for login
-    // url: http://localhost:8080/api/auth/login
+    // url: host...8080/api/auth/login
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
         AuthResponse response = authService.login(request);
