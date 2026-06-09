@@ -1,0 +1,3 @@
+DATABASE_URL=some_url
+DATABASE_USER=some_user
+DATABASE_PASSWORD=some_password

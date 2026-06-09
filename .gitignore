@@ -1,5 +1,8 @@
 frontend/package-lock.json
 
+# Ignore .env files which may contain sensitive information
+*.env
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/
