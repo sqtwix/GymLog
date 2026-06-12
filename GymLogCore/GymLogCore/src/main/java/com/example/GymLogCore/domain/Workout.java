@@ -26,7 +26,7 @@ public class Workout {
 
     private String description;
 
-    @Column(nullable = false)
+    @Column(name = "workout_date", nullable = false)
     private LocalDateTime date;
 
     private int durationMinutes;

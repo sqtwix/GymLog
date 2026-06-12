@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,9 +12,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
-/*
-Entity for representing user of system
-*/
 @Entity
 @Table(name = "users")
 @Getter
@@ -29,7 +25,7 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String username;
 
-    @Column(nullable = false)
+    @Column(name = "hashed_password", nullable = false)
     private String hashedPassword;
 
     @Column(nullable = false, unique = true)
@@ -57,7 +53,6 @@ public class User implements UserDetails {
         return this.email;
     }
 
-    // Methods for blocking account
     @Override
     public boolean isAccountNonExpired() { return true; }
 
