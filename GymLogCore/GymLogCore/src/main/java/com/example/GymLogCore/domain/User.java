@@ -34,6 +34,9 @@ public class User implements UserDetails {
     @Column(nullable = false, updatable = false)
     private LocalDateTime birthDate;
 
+    @Column(name = "gender")
+    private String gender;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Workout> trains = new ArrayList<>();
 

@@ -22,7 +22,7 @@ public class Workout {
     private Long id;
 
     @Column(nullable = false)
-    private String type;
+    private long type_id;
 
     private String description;
 
@@ -30,6 +30,9 @@ public class Workout {
     private LocalDateTime date;
 
     private int durationMinutes;
+
+    @Column(name = "location_id")
+    private int location_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
