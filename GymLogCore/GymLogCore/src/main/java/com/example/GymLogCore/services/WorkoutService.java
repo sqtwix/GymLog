@@ -22,7 +22,7 @@ public class WorkoutService {
     public List<WorkoutResponse> getAllWorkouts(long userId) {
         return workoutRepository.findAllByUserId(userId).stream()
                 .map(w -> new WorkoutResponse(
-                        w.getType(),
+                        w.getT,
                         w.getDescription(),
                         w.getDate(),
                         w.getDurationMinutes()))

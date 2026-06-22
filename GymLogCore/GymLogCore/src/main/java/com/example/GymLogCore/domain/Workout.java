@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 */
 
 @Entity
-@Table(name = "workouts")
+@Table(name = "locations")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -21,7 +21,8 @@ public class Workout {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "type_id")
     private long type_id;
 
     private String description;
@@ -31,7 +32,8 @@ public class Workout {
 
     private int durationMinutes;
 
-    @Column(name = "location_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "location_id")
     private int location_id;
 
     @ManyToOne(fetch = FetchType.LAZY)
