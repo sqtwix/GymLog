@@ -23,7 +23,7 @@ public class Workout {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "type_id")
-    private long type_id;
+    private Type type;
 
     private String description;
 
@@ -34,7 +34,7 @@ public class Workout {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
-    private int location_id;
+    private Location location;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

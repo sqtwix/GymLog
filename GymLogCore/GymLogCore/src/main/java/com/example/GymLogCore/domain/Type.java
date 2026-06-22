@@ -16,6 +16,6 @@ public class Type {
     private Long id;
 
     @Column(name="type", nullable = false)
-    private String location;
+    private String type;
 }
 
