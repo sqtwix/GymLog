@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gymlog_db
+    username: gym_app_client
+    password: secure_app_pass
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/gymlog_db
+    user: postgres
+    password: root
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
