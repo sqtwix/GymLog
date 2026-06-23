@@ -1,5 +1,5 @@
 # Этап 1: Сборка (Builder)
-FROM amazoncorretto:25-alpine AS builder
+FROM amazoncorretto:21-alpine AS builder
 WORKDIR /app
 
 # Копируем обертку Gradle из вложенной папки
@@ -17,7 +17,7 @@ RUN chmod +x ./gradlew
 RUN ./gradlew bootJar -x test
 
 # Этап 2: Запуск (Runtime)
-FROM amazoncorretto:25-alpine
+FROM amazoncorretto:21-alpine
 WORKDIR /app
 
 # Копируем готовый JAR из первого этапа
