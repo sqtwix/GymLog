@@ -37,9 +37,10 @@ public class User implements UserDetails {
     @Column(nullable = false, updatable = false)
     private LocalDateTime birthDate;
 
+    @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "gender")
-    private String gender;
+    @Column(name = "gender", columnDefinition = "gender_enum")
+    private Gender gender;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Workout> trains = new ArrayList<>();

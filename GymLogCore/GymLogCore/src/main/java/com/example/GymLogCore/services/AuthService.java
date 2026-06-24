@@ -32,7 +32,10 @@ public class AuthService {
         user.setEmail(request.email());
         user.setUsername(request.username());
         user.setBirthDate(request.birthDate());
-        user.setGender(request.gender());
+
+        if (request.gender() != null && !request.gender().isBlank()) {
+            user.setGender(Gender.valueOf(request.gender().toUpperCase()));
+        }
         user.setHashedPassword(passwordEncoder.encode(request.password()));
 
         userRepository.save(user);
