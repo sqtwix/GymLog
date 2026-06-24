@@ -191,7 +191,6 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO role_client;
 GRANT EXECUTE ON ALL ROUTINES IN SCHEMA public TO role_client;
 
 -- 4. СОЗДАНИЕ РЕАЛЬНЫХ ПОЛЬЗОВАТЕЛЕЙ И ПРИСВОЕНИЕ РОЛЕЙ
--- 4. СОЗДАНИЕ РЕАЛЬНЫХ ПОЛЬЗОВАТЕЛЕЙ И ПРИСВОЕНИЕ РОЛЕЙ (БЕЗОПАСНЫЙ ВАРИАНТ)
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'role_admin') THEN
@@ -201,12 +200,12 @@ BEGIN
         CREATE ROLE role_client;
     END IF;
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gym_admin_user') THEN
-        CREATE USER gym_admin_user WITH PASSWORD 'super_secure_admin_pass';
+        CREATE USER gym_admin_user WITH PASSWORD '${admin_password}';
         GRANT role_admin TO gym_admin_user;
         ALTER USER gym_admin_user CREATEROLE CREATEDB;
     END IF;
     IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gym_app_client') THEN
-        CREATE USER gym_app_client WITH PASSWORD 'secure_app_pass';
+        CREATE USER gym_app_client WITH PASSWORD '${app_client_password}';
         GRANT role_client TO gym_app_client;
     END IF;
 END

@@ -2,15 +2,15 @@
 FROM amazoncorretto:21-alpine AS builder
 WORKDIR /app
 
-# Копируем обертку Gradle из вложенной папки
-COPY GymLogCore/GymLogCore/gradlew .
-COPY GymLogCore/GymLogCore/gradle gradle
+# Копируем обертку Gradle (теперь пути короткие!)
+COPY gradlew .
+COPY gradle gradle
 
-# Копируем все файлы .gradle (build.gradle и settings.gradle, если он есть)
-COPY GymLogCore/GymLogCore/*.gradle ./
+# Копируем все файлы .gradle
+COPY *.gradle ./
 
 # Копируем папку с исходным кодом
-COPY GymLogCore/GymLogCore/src src
+COPY src src
 
 # Даем права на выполнение и собираем проект (без тестов)
 RUN chmod +x ./gradlew
