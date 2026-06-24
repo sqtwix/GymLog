@@ -31,8 +31,8 @@ public class AuthService {
         User user = new User();
         user.setEmail(request.email());
         user.setUsername(request.username());
-        user.setBirthDate(request.date());
-
+        user.setBirthDate(request.birthDate());
+        user.setGender(request.gender());
         user.setHashedPassword(passwordEncoder.encode(request.password()));
 
         userRepository.save(user);
