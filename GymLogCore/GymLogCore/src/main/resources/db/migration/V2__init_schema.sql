@@ -116,11 +116,13 @@ CREATE TABLE IF NOT EXISTS notification_settings (
 CREATE TABLE IF NOT EXISTS scheduled_workout_reminders (
     id BIGSERIAL PRIMARY KEY,
     workout_id BIGINT NOT NULL,
+    user_id BIGINT NOT NULL, -- ИСПРАВЛЕНИЕ: Вернули user_id, он нужен для триггера!
     scheduled_time TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     sent BOOLEAN DEFAULT FALSE,
     sent_at TIMESTAMP WITHOUT TIME ZONE,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_reminder_workout FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE
+    CONSTRAINT fk_reminder_workout FOREIGN KEY (workout_id) REFERENCES workouts(id) ON DELETE CASCADE,
+    CONSTRAINT fk_reminder_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
 -- indexes
@@ -139,9 +141,61 @@ CREATE INDEX IF NOT EXISTS idx_body_metrics_user_date ON body_metrics(user_id, m
 CREATE INDEX IF NOT EXISTS idx_reminders_pending ON scheduled_workout_reminders(scheduled_time, sent) WHERE sent = FALSE;
 CREATE INDEX IF NOT EXISTS idx_goals_user_status ON goals(user_id, status);
 
--- 1. СОЗДАНИЕ ГРУППОВЫХ РОЛЕЙ (Без права логина, просто как шаблоны прав)
-CREATE ROLE role_admin;
-CREATE ROLE role_client;
+-- REFERENCES TABLES INITIALIZATION
+-- ИСПРАВЛЕНИЕ: Двойные кавычки заменены на одинарные, добавлены пропущенные запятые
+INSERT INTO types (type) VALUES
+('Strength'),
+('Stretching'),
+('Jogging'),
+('Fitness'),
+('Yoga'),
+('Cardio');
+
+INSERT INTO locations (location) VALUES
+('Home'),
+('Gym'),
+('Outside');
+
+INSERT INTO body_parts (part_name) VALUES
+('Chest'),
+('Legs'),
+('Biceps'),
+('Forearm'),
+('Triceps'),
+('Abs'),
+('Back');
+
+INSERT INTO tips (tip) VALUES
+('On average, an adult should drink 2 liters of water per day.'),
+('Never skip your warm-up! Spend 5-10 minutes prepping your joints and muscles.'),
+('Muscles grow during rest. Ensure you get 7-9 hours of sleep each night.'),
+('Track your workouts. Seeing your progress over time is the best motivation.'),
+('A 20 minute workout is always better than 0 minute workout'),
+('Feeling sore is normal, but sharp pain is not. Listen to your body and know when to rest.'),
+('To build muscle, gradually increase the weight or reps over time (Progressive Overload).'),
+('Always prioritize proper form over lifting heavier weights to prevent injury.');
+
+
+-- 1. СОЗДАНИЕ РЕАЛЬНЫХ ПОЛЬЗОВАТЕЛЕЙ И ПРИСВОЕНИЕ РОЛЕЙ (Безопасный способ в начале)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'role_admin') THEN
+        CREATE ROLE role_admin;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'role_client') THEN
+        CREATE ROLE role_client;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gym_admin_user') THEN
+        CREATE USER gym_admin_user WITH PASSWORD '${admin_password}';
+        GRANT role_admin TO gym_admin_user;
+        ALTER USER gym_admin_user CREATEROLE CREATEDB;
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gym_app_client') THEN
+        CREATE USER gym_app_client WITH PASSWORD '${app_client_password}';
+        GRANT role_client TO gym_app_client;
+    END IF;
+END
+$$;
 
 -- 2. НАСТРОЙКА ПРАВ ДЛЯ АДМИНИСТРАТОРА
 -- Даем доступ к схеме
@@ -187,27 +241,6 @@ GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO role_client;
 
 -- D. Доступ к выполнению процедур, функций и триггеров
 GRANT EXECUTE ON ALL ROUTINES IN SCHEMA public TO role_client;
-
--- 4. СОЗДАНИЕ РЕАЛЬНЫХ ПОЛЬЗОВАТЕЛЕЙ И ПРИСВОЕНИЕ РОЛЕЙ
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'role_admin') THEN
-        CREATE ROLE role_admin;
-    END IF;
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'role_client') THEN
-        CREATE ROLE role_client;
-    END IF;
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gym_admin_user') THEN
-        CREATE USER gym_admin_user WITH PASSWORD '${admin_password}';
-        GRANT role_admin TO gym_admin_user;
-        ALTER USER gym_admin_user CREATEROLE CREATEDB;
-    END IF;
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'gym_app_client') THEN
-        CREATE USER gym_app_client WITH PASSWORD '${app_client_password}';
-        GRANT role_client TO gym_app_client;
-    END IF;
-END
-$$;
 
 -- 1. Автоматический расчет ИМТ
 -- Функция для триггера
