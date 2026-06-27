@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Tips {
+public class Tip {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;

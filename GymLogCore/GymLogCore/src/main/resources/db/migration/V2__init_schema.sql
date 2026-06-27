@@ -254,6 +254,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_calculate_bmi ON body_metrics;
 CREATE TRIGGER trg_calculate_bmi
 BEFORE INSERT OR UPDATE ON body_metrics
 FOR EACH ROW
@@ -268,6 +269,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_update_notification_settings ON notification_settings;
 CREATE TRIGGER trg_update_notification_settings
 BEFORE UPDATE ON notification_settings
 FOR EACH ROW
@@ -299,6 +301,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_auto_schedule_reminder ON workouts;
 CREATE TRIGGER trg_auto_schedule_reminder
 AFTER INSERT ON workouts
 FOR EACH ROW
