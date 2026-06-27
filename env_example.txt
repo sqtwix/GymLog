@@ -1,0 +1,10 @@
+# Admin access (for database management and initial setup)
+DB_ADMIN_USER=root_user
+DB_ADMIN_PASSWORD=root_passowrd
+
+# Client access (for application use)
+APP_DB_USER=client_user
+APP_DB_PASSWORD=client_passowrd
+
+# URL for docker network
+DOCKER_DB_URL=some_url

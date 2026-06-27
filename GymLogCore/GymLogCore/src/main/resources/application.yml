@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gymlogdb}
+    username: ${APP_DB_USER}
+    password: ${APP_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      initialization-fail-timeout: -1
+
+  flyway:
+    enabled: true
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gymlogdb}
+    user: ${DB_ADMIN_USER}
+    password: ${DB_ADMIN_PASSWORD}
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    placeholders:
+      admin_password: ${DB_ADMIN_PASSWORD}
+      app_client_password: ${APP_DB_PASSWORD}
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
