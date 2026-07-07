@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.ArrayList;
 
 /*
  represents train
@@ -39,4 +41,12 @@ public class Workout {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "body_parts_workout",
+        joinColumns = @JoinColumn(name = "workout_id"),
+        inverseJoinColumns = @JoinColumn(name = "body_part_id")
+    )
+    private List<BodyPart> bodyParts = new ArrayList<>();
 }

@@ -8,6 +8,7 @@ import com.example.GymLogCore.repository.LocationRepository;
 import com.example.GymLogCore.repository.TypeRepository;
 import com.example.GymLogCore.repository.UserRepository;
 import com.example.GymLogCore.repository.WorkoutRepository;
+import com.example.GymLogCore.repository.BodyPartRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ public class WorkoutService {
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
     private final TypeRepository typeRepository;
+    private final BodyPartRepository bodyPartRepository;
 
 
     @Transactional(readOnly = true)
@@ -62,6 +64,11 @@ public class WorkoutService {
                 new RuntimeException("User not found"));
         workout.setUser(user);
 
+        if (request.bodyPartIds() != null && !request.bodyPartIds().isEmpty()) {
+            List<BodyPart> bodyParts = bodyPartRepository.findAllById(request.bodyPartIds());
+            workout.setBodyParts(bodyParts);
+        }
+
         workoutRepository.save(workout);
         return workout.getId();
     }
@@ -86,6 +93,13 @@ public class WorkoutService {
         existingWorkout.setDate(request.date());
         existingWorkout.setDurationMinutes(request.durationInMinutes());
 
+        if (request.bodyPartIds() != null && !request.bodyPartIds().isEmpty()) {
+            List<BodyPart> bodyParts = bodyPartRepository.findAllById(request.bodyPartIds());
+            existingWorkout.setBodyParts(bodyParts);
+        } else {
+            existingWorkout.setBodyParts(new ArrayList<>());
+        }
+
         workoutRepository.save(existingWorkout);
         return existingWorkout.getId();
     }
@@ -100,13 +114,17 @@ public class WorkoutService {
 
     private WorkoutResponse mapToResponse(Workout w) {
         String locationName = (w.getLocation() != null) ? w.getLocation().getLocation() : null;
+        List<String> bodyPartNames = w.getBodyParts() != null ? 
+                w.getBodyParts().stream().map(BodyPart::getPartName).toList() : new ArrayList<>();
 
         return new WorkoutResponse(
+                w.getId(),
                 w.getType().getType(),
                 w.getDescription(),
                 locationName,
                 w.getDate(),
-                w.getDurationMinutes()
+                w.getDurationMinutes(),
+                bodyPartNames
         );
     }
 }
