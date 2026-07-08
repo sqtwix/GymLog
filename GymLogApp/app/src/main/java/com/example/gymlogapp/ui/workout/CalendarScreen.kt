@@ -382,18 +382,34 @@ fun WorkoutCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Circular initial
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .background(Color(0xFF1E1E2E), CircleShape),
-                contentAlignment = Alignment.Center
+            // Clock icon with time label under it
+            val parsedTimeStr = remember(workout.date) {
+                try {
+                    val parsed = LocalDateTime.parse(workout.date)
+                    parsed.format(DateTimeFormatter.ofPattern("HH:mm"))
+                } catch (e: Exception) {
+                    "12:00"
+                }
+            }
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.width(60.dp)
             ) {
+                Icon(
+                    imageVector = Icons.Default.Schedule,
+                    contentDescription = "Workout Time",
+                    modifier = Modifier,
+                    tint = textAccent
+                )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = workout.type.take(1).uppercase(),
-                    fontSize = 20.sp,
+                    text = parsedTimeStr,
+                    fontSize = 12.sp,
                     fontWeight = FontWeight.Bold,
-                    color = textAccent
+                    color = Color.White,
+                    textAlign = TextAlign.Center
                 )
             }
 
