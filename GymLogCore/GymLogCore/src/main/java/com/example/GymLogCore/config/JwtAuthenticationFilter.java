@@ -49,23 +49,26 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // 4. Если email есть в токене, и мы еще не авторизованы в текущем контексте
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            try {
+                // Достаем юзера из БД
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            // Достаем юзера из БД
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+                // Проверяем токен на валидность (тот ли юзер, не просрочен ли)
+                if (jwtService.isTokeValid(jwt, (com.example.GymLogCore.domain.User) userDetails)) {
 
-            // Проверяем токен на валидность (тот ли юзер, не просрочен ли)
-            if (jwtService.isTokeValid(jwt, (com.example.GymLogCore.domain.User) userDetails)) {
+                    // Создаем объект аутентификации (пропуск в систему)
+                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                            userDetails,
+                            null,
+                            userDetails.getAuthorities()
+                    );
+                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Создаем объект аутентификации (пропуск в систему)
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                // Кладем пропуск в SecurityContext (говорим Spring, что этот клиент проверен)
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+                    // Кладем пропуск в SecurityContext (говорим Spring, что этот клиент проверен)
+                    SecurityContextHolder.getContext().setAuthentication(authToken);
+                }
+            } catch (Exception e) {
+                // If the user does not exist in the DB, ignore the token and let Spring Security reject it with 403
             }
         }
 

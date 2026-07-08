@@ -4,6 +4,8 @@ import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -74,10 +76,10 @@ fun CalendarScreen(
                 },
                 actions = {
                     IconButton(onClick = { viewModel.loadWorkouts() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh", modifier = Modifier, tint = Color.White)
                     }
                     IconButton(onClick = { viewModel.logout(onLogout) }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout", tint = Color.Red)
+                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout", modifier = Modifier, tint = Color.Red)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = containerBg)
@@ -90,7 +92,7 @@ fun CalendarScreen(
                 contentColor = Color.Black,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Workout")
+                Icon(Icons.Default.Add, contentDescription = "Add Workout", modifier = Modifier)
             }
         },
         containerColor = Color.Transparent,
@@ -139,7 +141,7 @@ fun CalendarScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Info, contentDescription = null, size = 48.dp, tint = Color.Gray)
+                        Icon(Icons.Default.Info, contentDescription = null, modifier = Modifier.size(48.dp), tint = Color.Gray)
                         Spacer(modifier = Modifier.height(12.dp))
                         Text("No workouts scheduled for today", color = Color.Gray)
                     }
@@ -243,7 +245,7 @@ fun CalendarStrip(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, bottom = 12.dp),
+                .padding(start = 20.dp, end = 20.dp, bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -423,10 +425,10 @@ fun WorkoutCard(
             // Action Buttons
             Column(horizontalAlignment = Alignment.End) {
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit", tint = Color.LightGray)
+                    Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier, tint = Color.LightGray)
                 }
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color(0xFFF38BA8))
+                    Icon(Icons.Default.Delete, contentDescription = "Delete", modifier = Modifier, tint = Color(0xFFF38BA8))
                 }
             }
         }

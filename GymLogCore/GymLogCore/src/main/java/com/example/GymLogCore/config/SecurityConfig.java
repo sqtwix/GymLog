@@ -27,6 +27,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Allows access to all endpoints by /api/auth/ WITHOUT TOKEN
                         .requestMatchers("/api/auth/**").permitAll()
+                        // Permit access to /error path to avoid masking exceptions as 403
+                        .requestMatchers("/error").permitAll()
                         // Allow to swagger
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "swagger-ui.html").permitAll()
                         // TO ALL OTHER access only with token

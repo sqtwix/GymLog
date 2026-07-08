@@ -89,4 +89,8 @@ dependencies {
   implementation(libs.okhttp)
   implementation(libs.okhttp.logging.interceptor)
   implementation(libs.version.kotlinx.serialization.json)
+
+  // Material Icons
+  implementation(libs.androidx.material.icons.core)
+  implementation(libs.androidx.material.icons.extended)
 }
