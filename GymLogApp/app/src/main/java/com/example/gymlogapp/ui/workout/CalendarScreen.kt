@@ -227,81 +227,132 @@ fun CalendarStrip(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit
 ) {
-    val context = LocalContext.current
     val today = LocalDate.now()
     
-    // Generates dates for current horizontal selector (-15 days to +15 days)
-    val dates = remember {
-        (-14..14).map { today.plusDays(it.toLong()) }
+    // viewedMonth state stores the first day of the currently displayed month.
+    // It is initialized to the month of the selectedDate, and updates when selectedDate shifts.
+    var viewedMonth by remember(selectedDate.year, selectedDate.monthValue) {
+        mutableStateOf(selectedDate.withDayOfMonth(1))
     }
+
+    val firstDayOfMonth = viewedMonth
+    val firstDayOfWeek = firstDayOfMonth.dayOfWeek.value // 1 (Mon) to 7 (Sun)
+    val daysInMonth = firstDayOfMonth.lengthOfMonth()
+    
+    // Number of empty days at the beginning of the grid (before Monday-start 1st of month)
+    val prefixDays = firstDayOfWeek - 1
+    val totalGridItems = prefixDays + daysInMonth
+    
+    // Group days into rows of 7 (representing weeks)
+    val weeks = (0 until totalGridItems).chunked(7)
+
+    val weekendColor = Color(0xFFF38BA8) // Soft red/pink for weekends
+    val accentColor = Color(0xFF89B4FA)  // Accent lavender blue
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(Color(0xFF181825))
-            .padding(vertical = 12.dp)
+            .padding(16.dp)
     ) {
-        // Month / Year Label
+        // Month selector header
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 20.dp, end = 20.dp, bottom = 12.dp),
+                .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
+            IconButton(onClick = { viewedMonth = viewedMonth.minusMonths(1) }) {
+                Icon(Icons.Default.KeyboardArrowLeft, contentDescription = "Previous Month", tint = Color.White)
+            }
+
             Text(
-                text = selectedDate.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + selectedDate.year,
+                text = viewedMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + viewedMonth.year,
                 fontSize = 18.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
-            
-            Text(
-                text = "Today",
-                color = Color(0xFF89B4FA),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
+                color = Color.White,
                 modifier = Modifier
-                    .clickable { onDateSelected(today) }
-                    .padding(4.dp)
+                    .clickable {
+                        // Go back to today's month & select today
+                        onDateSelected(today)
+                    }
+                    .padding(8.dp)
             )
+
+            IconButton(onClick = { viewedMonth = viewedMonth.plusMonths(1) }) {
+                Icon(Icons.Default.KeyboardArrowRight, contentDescription = "Next Month", tint = Color.White)
+            }
         }
 
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        // Days of week header row
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            items(dates) { date ->
-                val isSelected = date == selectedDate
-                val dayOfWeek = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault())
-                val dayOfMonth = date.dayOfMonth.toString()
+            val daysOfWeekLabels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+            daysOfWeekLabels.forEachIndexed { index, label ->
+                val isWeekend = index >= 5
+                Text(
+                    text = label,
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (isWeekend) weekendColor else Color.Gray,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
 
-                Card(
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected) Color(0xFF89B4FA) else Color(0xFF313244)
-                    ),
-                    modifier = Modifier
-                        .width(55.dp)
-                        .clickable { onDateSelected(date) }
+        // Monthly Grid
+        Column(
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            weeks.forEach { week ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Column(
-                        modifier = Modifier.padding(vertical = 12.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = dayOfWeek,
-                            fontSize = 12.sp,
-                            color = if (isSelected) Color.Black else Color.LightGray,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = dayOfMonth,
-                            fontSize = 16.sp,
-                            color = if (isSelected) Color.Black else Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
+                    for (dayIndex in 0..6) {
+                        val gridIndex = week.getOrNull(dayIndex)
+                        if (gridIndex == null || gridIndex < prefixDays) {
+                            // Spacer for cells before the 1st of the month
+                            Spacer(modifier = Modifier.weight(1f))
+                        } else {
+                            val dayNumber = gridIndex - prefixDays + 1
+                            val date = firstDayOfMonth.withDayOfMonth(dayNumber)
+                            val isSelected = date == selectedDate
+                            val isToday = date == today
+                            val isWeekend = dayIndex >= 5
+
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .aspectRatio(1f)
+                                    .padding(2.dp)
+                                    .background(
+                                        color = if (isSelected) accentColor else if (isToday) Color(0xFF313244) else Color.Transparent,
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                                    .clickable { onDateSelected(date) },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = dayNumber.toString(),
+                                    fontSize = 14.sp,
+                                    fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) {
+                                        Color.Black
+                                    } else if (isWeekend) {
+                                        weekendColor
+                                    } else {
+                                        Color.White
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
