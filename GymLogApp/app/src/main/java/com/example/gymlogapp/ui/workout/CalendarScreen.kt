@@ -323,7 +323,8 @@ fun CalendarStrip(
                         } else {
                             val dayNumber = gridIndex - prefixDays + 1
                             val date = firstDayOfMonth.withDayOfMonth(dayNumber)
-                            val isSelected = date == selectedDate
+                            val isPast = date.isBefore(today)
+                            val isSelected = date == selectedDate && !isPast
                             val isToday = date == today
                             val isWeekend = dayIndex >= 5
 
@@ -336,19 +337,19 @@ fun CalendarStrip(
                                         color = if (isSelected) accentColor else if (isToday) Color(0xFF313244) else Color.Transparent,
                                         shape = RoundedCornerShape(10.dp)
                                     )
-                                    .clickable { onDateSelected(date) },
+                                    .clickable(enabled = !isPast) { onDateSelected(date) },
                                 contentAlignment = Alignment.Center
                             ) {
                                 Text(
                                     text = dayNumber.toString(),
                                     fontSize = 14.sp,
                                     fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) {
-                                        Color.Black
-                                    } else if (isWeekend) {
-                                        weekendColor
-                                    } else {
-                                        Color.White
+                                    color = when {
+                                        isSelected -> Color.Black
+                                        isPast -> Color(0xFF585B70) // Faded gray for inactive past days
+                                        isToday -> accentColor
+                                        isWeekend -> weekendColor
+                                        else -> Color.White
                                     }
                                 )
                             }
