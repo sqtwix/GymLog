@@ -1,0 +1,14 @@
+package com.example.GymLogCore;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class
+GymLogCoreApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(GymLogCoreApplication.class, args);
+	}
+
+}

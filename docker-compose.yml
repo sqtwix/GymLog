@@ -1,7 +1,7 @@
 services:
   backend:
     build: 
-      context: ./GymLogCore/GymLogCore
+      context: ./src/GymLogCore
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
