@@ -53,7 +53,8 @@ fun MainScreen(navController: NavController) {
 
         // Верхняя панель
         Surface(
-            color = MaterialTheme.colorScheme.primaryContainer,
+            color = MaterialTheme.colorScheme.surface,
+            contentColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(
@@ -95,7 +96,11 @@ fun MainScreen(navController: NavController) {
         ) {
             DatePicker(
                 state = datePickerState,
-                showModeToggle = false
+                showModeToggle = false,
+                colors = DatePickerDefaults.colors(
+                    weekdayContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    subheadContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             )
         }
 
@@ -142,7 +147,10 @@ fun MainScreen(navController: NavController) {
                         Spacer(Modifier.height(16.dp))
 
                         Button(
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.onError
+                            ),
                             onClick = {
                                 scope.launch {
                                     try {

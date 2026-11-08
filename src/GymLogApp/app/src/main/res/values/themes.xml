@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.GymLogApp" parent="android:Theme.Material.Light.NoActionBar"/>
+    <style name="Theme.GymLogApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/window_background</item>
+        <item name="android:colorAccent">@color/window_accent</item>
+        <item name="colorPrimary">@color/window_accent</item>
+        <item name="colorPrimaryVariant">@color/window_accent</item>
+        <item name="colorSecondary">@color/window_accent</item>
+    </style>
 </resources>

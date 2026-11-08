@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Native window colors, matching the dark palette in ui/theme/Color.kt. -->
+    <color name="window_background">#121417</color>
+    <color name="window_accent">#3EEDC7</color>
+</resources>
