@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Stable launcher background, independent of the device theme. -->
+    <color name="launcher_background">#121417</color>
     <!-- Native window colors, matching the light palette in ui/theme/Color.kt. -->
     <color name="window_background">#F7F8FA</color>
     <color name="window_accent">#1B7F64</color>

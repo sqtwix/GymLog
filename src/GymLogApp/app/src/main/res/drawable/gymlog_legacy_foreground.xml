@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A 40 dp mark within the 48 dp legacy launcher icon, preserving source ratio. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="-18.9664dp"
+    android:insetRight="-18.9664dp"
+    android:insetTop="0.0187dp"
+    android:insetBottom="0.0187dp">
+    <bitmap android:src="@mipmap/logo" android:gravity="fill" />
+</inset>

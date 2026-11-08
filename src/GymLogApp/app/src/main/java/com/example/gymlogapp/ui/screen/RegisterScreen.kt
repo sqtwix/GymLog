@@ -2,13 +2,17 @@ package com.example.gymlogapp.ui.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.gymlogapp.ui.components.GymLogLogo
 import com.example.gymlogapp.api.RetrofitClient
 import com.example.gymlogapp.model.RegisterRequest
 import kotlinx.coroutines.launch
@@ -29,13 +33,18 @@ fun RegisterScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(24.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        GymLogLogo()
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            text = "Регистрация",
-            style = MaterialTheme.typography.headlineMedium
+            text = "Регистрация в GymLog",
+            style = MaterialTheme.typography.headlineMedium,
+            textAlign = TextAlign.Center
         )
 
         Spacer(modifier = Modifier.height(24.dp))

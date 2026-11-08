@@ -21,6 +21,8 @@ import com.example.gymlogapp.ui.theme.GymLogAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        // The system displays the starting theme until the first app frame.
+        setTheme(R.style.Theme_GymLogApp)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 

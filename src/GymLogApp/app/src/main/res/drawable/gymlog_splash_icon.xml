@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A square viewport with an undistorted 180 dp mark on the 288 dp splash canvas.
+     Only the transparent margins extend beyond the viewport. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="-17.1351%"
+    android:insetRight="-17.1351%"
+    android:insetTop="12.5293%"
+    android:insetBottom="12.5293%">
+    <bitmap android:src="@mipmap/logo" android:gravity="fill" />
+</inset>

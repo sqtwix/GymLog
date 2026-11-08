@@ -7,4 +7,7 @@
         <item name="colorPrimaryVariant">@color/window_accent</item>
         <item name="colorSecondary">@color/window_accent</item>
     </style>
+    <style name="Theme.GymLogApp.Starting" parent="Theme.GymLogApp">
+        <item name="android:windowBackground">@drawable/gymlog_splash</item>
+    </style>
 </resources>

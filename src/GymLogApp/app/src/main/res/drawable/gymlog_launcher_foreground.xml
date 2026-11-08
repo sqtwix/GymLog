@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Preserve the 2752:1536 source ratio; visible artwork occupies 60 of 108 dp.
+     Negative horizontal insets compensate for the source's transparent margins. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="-9.6756%"
+    android:insetRight="-9.6756%"
+    android:insetTop="16.6927%"
+    android:insetBottom="16.6927%">
+    <bitmap android:src="@mipmap/logo" android:gravity="fill" />
+</inset>
