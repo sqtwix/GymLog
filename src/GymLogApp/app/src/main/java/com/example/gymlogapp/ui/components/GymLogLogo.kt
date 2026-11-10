@@ -16,15 +16,15 @@ import com.example.gymlogapp.R
 
 @Composable
 fun GymLogLogo(modifier: Modifier = Modifier, size: Dp = 220.dp) {
-    // The 2752 x 1536 source has a centered 1258 x 1281 visible mark.
-    // Frame the mark with a little breathing room, without stretching the PNG.
     Box(
-        modifier = modifier.size(size).clipToBounds(),
+        modifier = modifier
+            .size(size)
+            .clipToBounds(),
         contentAlignment = Alignment.Center
     ) {
         Image(
             painter = painterResource(R.mipmap.logo),
-            contentDescription = null,
+            contentDescription = "логотип",
             modifier = Modifier.requiredSize(
                 width = size * (2752f / 1360f),
                 height = size * (1536f / 1360f)

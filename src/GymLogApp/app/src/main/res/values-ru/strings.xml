@@ -2,13 +2,11 @@
 <resources>
     <string name="app_name">GymLogApp</string>
 
-    <!-- Authentication -->
     <string name="login_title">Вход в GymLog</string>
     <string name="registration_title">Регистрация в GymLog</string>
     <string name="email_label">Email</string>
     <string name="password_label">Пароль</string>
     <string name="name_label">Имя</string>
-    <!-- Male/Female/Other are the values accepted by the API. -->
     <string name="gender_label">Пол (F или M)</string>
     <string name="birth_date_label">Дата рождения (yyyy-MM-dd)</string>
     <string name="fill_all_fields">Заполните все поля</string>
@@ -35,11 +33,13 @@
     <string name="register_prompt">Нет аккаунта? Зарегистрироваться</string>
     <string name="login_prompt">Уже есть аккаунт? Войти</string>
 
-    <!-- Calendar and workouts -->
-    <!-- Temporary display name until the screen uses the user profile. -->
     <string name="placeholder_user_name">Иван</string>
     <string name="greeting">Привет, %1$s!</string>
     <string name="action_logout">Выйти</string>
+    <string name="tab_calendar">Календарь</string>
+    <string name="tab_analysis">Аналитика</string>
+    <string name="analysis_title">Анализ тренировок</string>
+    <string name="analysis_empty">Пока пусто</string>
     <string name="action_open_workout">Открыть тренировку</string>
     <string name="workout_date_title">Тренировка на %1$s</string>
     <string name="workout_type_detail">Тип: %1$s</string>
@@ -54,7 +54,6 @@
     <string name="save_workout_error">Не удалось сохранить тренировку. Попробуйте снова.</string>
     <string name="delete_workout_error">Не удалось удалить тренировку. Попробуйте снова.</string>
 
-    <!-- Common actions -->
     <string name="action_close">Закрыть</string>
     <string name="action_delete">Удалить</string>
     <string name="action_save">Сохранить</string>

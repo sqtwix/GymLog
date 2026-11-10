@@ -17,12 +17,11 @@ import com.example.gymlogapp.repository.AuthRepository
 import com.example.gymlogapp.repository.WorkoutRepository
 import com.example.gymlogapp.ui.screen.LoginScreen
 import com.example.gymlogapp.ui.screen.RegisterScreen
-import com.example.gymlogapp.ui.screen.MainScreen
+import com.example.gymlogapp.ui.screen.HomeScreen
 import com.example.gymlogapp.ui.theme.GymLogAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        // The system displays the starting theme until the first app frame.
         setTheme(R.style.Theme_GymLogApp)
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -50,7 +49,7 @@ fun GymLogApp(authRepository: AuthRepository, workoutRepository: WorkoutReposito
     NavHost(
         modifier = Modifier.safeDrawingPadding(),
         navController = navController,
-        startDestination = "login"  // always starts from login screen
+        startDestination = "login"
     ) {
         composable("login") {
             LoginScreen(navController, authRepository)
@@ -61,7 +60,7 @@ fun GymLogApp(authRepository: AuthRepository, workoutRepository: WorkoutReposito
         }
 
         composable("main") {
-            MainScreen(navController, authRepository, workoutRepository)
+            HomeScreen(navController, authRepository, workoutRepository)
         }
     }
 }
