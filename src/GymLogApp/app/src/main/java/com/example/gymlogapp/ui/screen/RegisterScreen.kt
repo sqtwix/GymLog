@@ -101,7 +101,9 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
                                 )
                             )
                             Toast.makeText(context, R.string.registration_success, Toast.LENGTH_LONG).show()
-                            navController.navigate("login")
+                            navController.navigate("main") {
+                                popUpTo("register") { inclusive = true }
+                            }
                         } catch (e: CancellationException) {
                             throw e
                         } catch (e: Exception) {

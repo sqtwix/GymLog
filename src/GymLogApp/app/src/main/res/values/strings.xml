@@ -15,7 +15,7 @@
     <string name="invalid_gender">Enter F or M for gender.</string>
     <string name="invalid_birth_date">Enter the date as yyyy-MM-dd, for example 1995-05-15.</string>
     <string name="login_success">Logged in successfully!</string>
-    <string name="registration_success">Registration successful! Please log in</string>
+    <string name="registration_success">Registration successful!</string>
     <string name="login_error">Unable to log in. Check your details and internet connection.</string>
     <string name="registration_error">Unable to sign up. Check your details and try again.</string>
     <string name="error_bad_request">The server rejected the request. Check the entered data.</string>

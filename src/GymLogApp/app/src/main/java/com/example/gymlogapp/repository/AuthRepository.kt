@@ -26,11 +26,15 @@ class AuthRepository(
         return response
     }
 
-    suspend fun register(request: RegisterRequest) {
-        client.post("api/auth/register") {
+    suspend fun register(request: RegisterRequest): LoginResponse {
+        val response = client.post("api/auth/register") {
             contentType(ContentType.Application.Json)
             setBody(request)
-        }
+        }.body<LoginResponse>()
+
+        check(response.token.isNotBlank())
+        tokenStore.saveToken(response.token)
+        return response
     }
 
     fun logout() {

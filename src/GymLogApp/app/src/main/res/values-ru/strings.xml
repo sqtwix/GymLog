@@ -16,7 +16,7 @@
     <string name="invalid_gender">В поле пола укажите F или M.</string>
     <string name="invalid_birth_date">Введите дату в формате yyyy-MM-dd, например 1995-05-15.</string>
     <string name="login_success">Успешный вход!</string>
-    <string name="registration_success">Регистрация успешна! Войдите</string>
+    <string name="registration_success">Регистрация успешна!</string>
     <string name="login_error">Не удалось войти. Проверьте данные и подключение к интернету.</string>
     <string name="registration_error">Не удалось зарегистрироваться. Проверьте данные и попробуйте снова.</string>
     <string name="error_bad_request">Сервер отклонил запрос. Проверьте введённые данные.</string>
