@@ -13,7 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.gymlogapp.api.RetrofitClient
+import com.example.gymlogapp.repository.AuthRepository
+import com.example.gymlogapp.repository.WorkoutRepository
 import com.example.gymlogapp.ui.screen.LoginScreen
 import com.example.gymlogapp.ui.screen.RegisterScreen
 import com.example.gymlogapp.ui.screen.MainScreen
@@ -26,7 +27,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        RetrofitClient.init(this)
+        val app = application as GymLogApplication
 
         setContent {
             GymLogAppTheme {
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.onBackground
                 ) {
-                    GymLogApp()
+                    GymLogApp(app.authRepository, app.workoutRepository)
                 }
             }
         }
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun GymLogApp() {
+fun GymLogApp(authRepository: AuthRepository, workoutRepository: WorkoutRepository) {
     val navController = rememberNavController()
 
     NavHost(
@@ -52,15 +53,15 @@ fun GymLogApp() {
         startDestination = "login"  // always starts from login screen
     ) {
         composable("login") {
-            LoginScreen(navController)
+            LoginScreen(navController, authRepository)
         }
 
         composable("register") {
-            RegisterScreen(navController)
+            RegisterScreen(navController, authRepository)
         }
 
         composable("main") {
-            MainScreen(navController)
+            MainScreen(navController, authRepository, workoutRepository)
         }
     }
 }

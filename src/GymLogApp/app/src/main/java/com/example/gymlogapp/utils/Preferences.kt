@@ -2,22 +2,26 @@ package com.example.gymlogapp.utils
 
 import android.content.Context
 
-object Preferences {
-    private const val PREFS_NAME = "gymlog_prefs"
-    private const val KEY_TOKEN = "jwt_token"
+class Preferences(context: Context) : TokenStore {
+    private val prefs = context.applicationContext.getSharedPreferences(
+        PREFS_NAME,
+        Context.MODE_PRIVATE
+    )
 
-    fun saveToken(context: Context, token: String) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    override fun saveToken(token: String) {
         prefs.edit().putString(KEY_TOKEN, token).apply()
     }
 
-    fun getToken(context: Context): String? {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    override fun getToken(): String? {
         return prefs.getString(KEY_TOKEN, null)
     }
 
-    fun clearToken(context: Context) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().clear().apply()
+    override fun clearToken() {
+        prefs.edit().remove(KEY_TOKEN).apply()
+    }
+
+    private companion object {
+        const val PREFS_NAME = "gymlog_prefs"
+        const val KEY_TOKEN = "jwt_token"
     }
 }

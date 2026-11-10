@@ -4,7 +4,7 @@ services:
       context: ./src/GymLogCore
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8081:8080"
     environment:
       # Передаем оригинальные переменные прямо из .env в контейнер, 
       # чтобы application.yml смог их прочитать

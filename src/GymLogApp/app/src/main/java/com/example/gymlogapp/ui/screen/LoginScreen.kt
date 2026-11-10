@@ -9,18 +9,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.gymlogapp.R
 import com.example.gymlogapp.ui.components.GymLogLogo
-import com.example.gymlogapp.api.RetrofitClient
-import com.example.gymlogapp.model.LoginRequest
-import com.example.gymlogapp.utils.Preferences
+import com.example.gymlogapp.repository.AuthRepository
+import com.example.gymlogapp.utils.getErrorMessage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, authRepository: AuthRepository) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -41,7 +43,7 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Вход в GymLog",
+            text = stringResource(R.string.login_title),
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center
         )
@@ -51,7 +53,7 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Email") },
+            label = { Text(stringResource(R.string.email_label)) },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -61,7 +63,7 @@ fun LoginScreen(navController: NavController) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Пароль") },
+            label = { Text(stringResource(R.string.password_label)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
@@ -75,7 +77,7 @@ fun LoginScreen(navController: NavController) {
             Button(
                 onClick = {
                     if (email.isBlank() || password.isBlank()) {
-                        Toast.makeText(context, "Заполните все поля", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.fill_all_fields, Toast.LENGTH_SHORT).show()
                         return@Button
                     }
 
@@ -83,14 +85,15 @@ fun LoginScreen(navController: NavController) {
                         isLoading = true
                         errorMessage = ""
                         try {
-                            val response = RetrofitClient.api.login(LoginRequest(email, password))
-                            Preferences.saveToken(context, response.token)
-                            Toast.makeText(context, "Успешный вход!", Toast.LENGTH_SHORT).show()
+                            authRepository.login(email, password)
+                            Toast.makeText(context, R.string.login_success, Toast.LENGTH_SHORT).show()
                             navController.navigate("main") {
                                 popUpTo("login") { inclusive = true }
                             }
+                        } catch (e: CancellationException) {
+                            throw e
                         } catch (e: Exception) {
-                            errorMessage = e.message ?: "Ошибка входа"
+                            errorMessage = getErrorMessage(context, e)
                             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                         } finally {
                             isLoading = false
@@ -100,7 +103,7 @@ fun LoginScreen(navController: NavController) {
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !isLoading
             ) {
-                Text("Войти")
+                Text(stringResource(R.string.action_login))
             }
         }
 
@@ -116,7 +119,7 @@ fun LoginScreen(navController: NavController) {
         Spacer(modifier = Modifier.height(24.dp))
 
         TextButton(onClick = { navController.navigate("register") }) {
-            Text("Нет аккаунта? Зарегистрироваться")
+            Text(stringResource(R.string.register_prompt))
         }
     }
 }

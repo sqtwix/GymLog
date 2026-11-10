@@ -8,20 +8,28 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.gymlogapp.api.RetrofitClient
+import com.example.gymlogapp.R
+import com.example.gymlogapp.repository.AuthRepository
+import com.example.gymlogapp.repository.WorkoutRepository
 import com.example.gymlogapp.model.CreateTrainRequest
 import com.example.gymlogapp.model.TrainResponse
-import com.example.gymlogapp.utils.Preferences
+import com.example.gymlogapp.utils.getErrorMessage
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainScreen(navController: NavController) {
+fun MainScreen(
+    navController: NavController,
+    authRepository: AuthRepository,
+    workoutRepository: WorkoutRepository
+) {
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -37,17 +45,19 @@ fun MainScreen(navController: NavController) {
     val datePickerState = rememberDatePickerState()
 
     // Загрузка тренировок
-    LaunchedEffect(Unit) {
+    LaunchedEffect(workoutRepository) {
         try {
-            trains = RetrofitClient.api.getTrains()
+            trains = workoutRepository.getWorkouts()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
-            Toast.makeText(context, "Ошибка: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, getErrorMessage(context, e), Toast.LENGTH_LONG).show()
         } finally {
             isLoading = false
         }
     }
 
-    val username = "Иван"
+    val username = stringResource(R.string.placeholder_user_name)
 
     Column(modifier = Modifier.fillMaxSize()) {
 
@@ -62,20 +72,20 @@ fun MainScreen(navController: NavController) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Привет, $username!",
+                    text = stringResource(R.string.greeting, username),
                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                     modifier = Modifier.weight(1f)
                 )
 
                 OutlinedButton(
                     onClick = {
-                        Preferences.clearToken(context)
+                        authRepository.logout()
                         navController.navigate("login") {
                             popUpTo("main") { inclusive = true }
                         }
                     }
                 ) {
-                    Text("Выйти")
+                    Text(stringResource(R.string.action_logout))
                 }
             }
         }
@@ -120,7 +130,7 @@ fun MainScreen(navController: NavController) {
                 showDialog = true
             }
         ) {
-            Text("Открыть тренировку")
+            Text(stringResource(R.string.action_open_workout))
         }
     }
 
@@ -131,66 +141,42 @@ fun MainScreen(navController: NavController) {
 
         AlertDialog(
             onDismissRequest = { showDialog = false },
-            title = { Text("Тренировка на $dateStr") },
+            title = { Text(stringResource(R.string.workout_date_title, dateStr)) },
             confirmButton = {},
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
-                    Text("Закрыть")
+                    Text(stringResource(R.string.action_close))
                 }
             },
             text = {
                 if (currentTrain != null) {
                     Column {
-                        Text("Тип: ${currentTrain!!.type}")
-                        Text("Длительность: ${currentTrain!!.duration} мин")
-
-                        Spacer(Modifier.height(16.dp))
-
-                        Button(
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.error,
-                                contentColor = MaterialTheme.colorScheme.onError
-                            ),
-                            onClick = {
-                                scope.launch {
-                                    try {
-                                        RetrofitClient.api.deleteTrain(dateStr)
-                                        trains = RetrofitClient.api.getTrains()
-                                        Toast.makeText(context, "Удалено", Toast.LENGTH_SHORT).show()
-                                    } catch (e: Exception) {
-                                        Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
-                                    } finally {
-                                        showDialog = false
-                                    }
-                                }
-                            }
-                        ) {
-                            Text("Удалить")
-                        }
+                        Text(stringResource(R.string.workout_type_detail, currentTrain!!.type))
+                        Text(stringResource(R.string.workout_duration_detail, currentTrain!!.durationInMinutes))
                     }
                 } else {
 
-                    var type by remember { mutableStateOf("") }
+                    var typeId by remember { mutableStateOf("") }
                     var durationStr by remember { mutableStateOf("") }
                     var description by remember { mutableStateOf("") }
 
                     Column {
                         OutlinedTextField(
-                            value = type,
-                            onValueChange = { type = it },
-                            label = { Text("Тип тренировки") }
+                            value = typeId,
+                            onValueChange = { typeId = it.filter(Char::isDigit) },
+                            label = { Text(stringResource(R.string.workout_type_label)) }
                         )
 
                         OutlinedTextField(
                             value = durationStr,
                             onValueChange = { durationStr = it },
-                            label = { Text("Длительность (мин)") }
+                            label = { Text(stringResource(R.string.workout_duration_label)) }
                         )
 
                         OutlinedTextField(
                             value = description,
                             onValueChange = { description = it },
-                            label = { Text("Описание") }
+                            label = { Text(stringResource(R.string.workout_description_label)) }
                         )
 
                         Spacer(Modifier.height(16.dp))
@@ -198,34 +184,36 @@ fun MainScreen(navController: NavController) {
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
+                                val workoutTypeId = typeId.toLongOrNull()
                                 val duration = durationStr.toIntOrNull() ?: 0
-                                if (type.isBlank() || duration <= 0) {
-                                    Toast.makeText(context, "Ошибка ввода", Toast.LENGTH_SHORT).show()
+                                if (workoutTypeId == null || workoutTypeId <= 0 || duration <= 0) {
+                                    Toast.makeText(context, R.string.workout_validation_error, Toast.LENGTH_SHORT).show()
                                     return@Button
                                 }
 
                                 scope.launch {
                                     try {
-                                        RetrofitClient.api.createTrain(
+                                        workoutRepository.createWorkout(
                                             CreateTrainRequest(
-                                                type = type,
+                                                type_id = workoutTypeId,
                                                 description = description,
-                                                date = dateStr,
-                                                duration = duration,
-                                                userId = 0
+                                                date = "${dateStr}T00:00:00",
+                                                durationInMinutes = duration
                                             )
                                         )
-                                        trains = RetrofitClient.api.getTrains()
-                                        Toast.makeText(context, "Сохранено", Toast.LENGTH_SHORT).show()
+                                        trains = workoutRepository.getWorkouts()
+                                        Toast.makeText(context, R.string.workout_saved, Toast.LENGTH_SHORT).show()
+                                    } catch (e: CancellationException) {
+                                        throw e
                                     } catch (e: Exception) {
-                                        Toast.makeText(context, e.message, Toast.LENGTH_LONG).show()
+                                        Toast.makeText(context, getErrorMessage(context, e), Toast.LENGTH_LONG).show()
                                     } finally {
                                         showDialog = false
                                     }
                                 }
                             }
                         ) {
-                            Text("Сохранить")
+                            Text(stringResource(R.string.action_save))
                         }
                     }
                 }

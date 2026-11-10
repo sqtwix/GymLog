@@ -1,11 +1,12 @@
 package com.example.gymlogapp.model
 
-import java.util.Date;
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class RegisterRequest(
-    val name: String,
+    val username: String,
     val email: String,
     val password: String,
     val gender: String,
-    val birthDay: String
+    val birthDate: String
 )

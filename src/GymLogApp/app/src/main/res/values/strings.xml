@@ -1,3 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">GymLogApp</string>
+
+    <!-- Authentication -->
+    <string name="login_title">Log in to GymLog</string>
+    <string name="registration_title">Sign up for GymLog</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Password</string>
+    <string name="name_label">Name</string>
+    <string name="gender_label">Gender (F or M)</string>
+    <string name="birth_date_label">Date of birth (yyyy-MM-dd)</string>
+    <string name="fill_all_fields">Fill in all fields</string>
+    <string name="fill_required_fields">Fill in all required fields</string>
+    <string name="invalid_gender">Enter F or M for gender.</string>
+    <string name="invalid_birth_date">Enter the date as yyyy-MM-dd, for example 1995-05-15.</string>
+    <string name="login_success">Logged in successfully!</string>
+    <string name="registration_success">Registration successful! Please log in</string>
+    <string name="login_error">Unable to log in. Check your details and internet connection.</string>
+    <string name="registration_error">Unable to sign up. Check your details and try again.</string>
+    <string name="error_bad_request">The server rejected the request. Check the entered data.</string>
+    <string name="error_unauthorized">Incorrect email or password.</string>
+    <string name="error_forbidden">You do not have permission to perform this action.</string>
+    <string name="error_not_found">The API endpoint was not found. Check the server address.</string>
+    <string name="error_conflict">An account with these details already exists.</string>
+    <string name="error_http_client">Request failed (HTTP %1$d).</string>
+    <string name="error_server">Server error (HTTP %1$d). Try again later.</string>
+    <string name="error_timeout">The server took too long to respond.</string>
+    <string name="error_network">Cannot connect to the server. Check that it is running and the address is correct.</string>
+    <string name="error_invalid_response">The server returned data the app could not read.</string>
+    <string name="error_unknown">Something went wrong. Please try again.</string>
+    <string name="action_login">Log in</string>
+    <string name="action_register">Sign up</string>
+    <string name="register_prompt">No account? Sign up</string>
+    <string name="login_prompt">Already have an account? Log in</string>
+
+    <!-- Calendar and workouts -->
+    <string name="placeholder_user_name">Ivan</string>
+    <string name="greeting">Hi, %1$s!</string>
+    <string name="action_logout">Log out</string>
+    <string name="action_open_workout">Open workout</string>
+    <string name="workout_date_title">Workout on %1$s</string>
+    <string name="workout_type_detail">Type: %1$s</string>
+    <string name="workout_duration_detail">Duration: %1$d min</string>
+    <string name="workout_type_label">Workout type ID (see seeded types: 1–6)</string>
+    <string name="workout_duration_label">Duration (min)</string>
+    <string name="workout_description_label">Description</string>
+    <string name="workout_validation_error">Enter a valid workout type ID and a duration greater than zero.</string>
+    <string name="workout_saved">Saved</string>
+    <string name="workout_deleted">Deleted</string>
+    <string name="load_workouts_error">Unable to load workouts. Please try again.</string>
+    <string name="save_workout_error">Unable to save the workout. Please try again.</string>
+    <string name="delete_workout_error">Unable to delete the workout. Please try again.</string>
+
+    <!-- Common actions -->
+    <string name="action_close">Close</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_save">Save</string>
 </resources>
