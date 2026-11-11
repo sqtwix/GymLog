@@ -3,6 +3,8 @@ package com.example.gymlogapp.ui.screen
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -10,7 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.gymlogapp.R
@@ -20,14 +28,17 @@ import com.example.gymlogapp.model.RegisterRequest
 import com.example.gymlogapp.utils.getErrorMessage
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
+import java.text.ParsePosition
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 @Composable
 fun RegisterScreen(navController: NavController, authRepository: AuthRepository) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var gender by remember { mutableStateOf("") }
-    var birthDay by remember { mutableStateOf("") } // формат: "1995-05-15"
+    var gender by remember { mutableStateOf<String?>(null) }
+    var birthDateDigits by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -59,9 +70,48 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
         Spacer(modifier = Modifier.height(12.dp))
         OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.password_label)) }, modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(12.dp))
-        OutlinedTextField(value = gender, onValueChange = { gender = it }, label = { Text(stringResource(R.string.gender_label)) }, modifier = Modifier.fillMaxWidth())
+        Text(
+            text = stringResource(R.string.gender_label),
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(modifier = Modifier.fillMaxWidth()) {
+            listOf(
+                "M" to R.string.gender_male,
+                "F" to R.string.gender_female
+            ).forEach { (code, labelRes) ->
+                Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .selectable(
+                            selected = gender == code,
+                            onClick = { gender = code },
+                            role = Role.RadioButton
+                        ),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = gender == code,
+                        onClick = null
+                    )
+                    Text(stringResource(labelRes))
+                }
+            }
+        }
         Spacer(modifier = Modifier.height(12.dp))
-        OutlinedTextField(value = birthDay, onValueChange = { birthDay = it }, label = { Text(stringResource(R.string.birth_date_label)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = birthDateDigits,
+            onValueChange = { input ->
+                birthDateDigits = input.filter(Char::isDigit).take(8)
+            },
+            label = { Text(stringResource(R.string.birth_date_label)) },
+            placeholder = { Text(stringResource(R.string.birth_date_placeholder)) },
+            modifier = Modifier.fillMaxWidth(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            visualTransformation = BirthDateVisualTransformation
+        )
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -70,15 +120,14 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
         } else {
             Button(
                 onClick = {
-                    val normalizedGender = gender.trim().uppercase()
-                    val validBirthDate = runCatching {
-                        java.time.LocalDate.parse(birthDay.trim())
-                    }.isSuccess
+                    val birthDate = formatBirthDate(birthDateDigits)
+                    val selectedGender = gender
+                    val validBirthDate = birthDateDigits.length == 8 && isValidBirthDate(birthDate)
                     if (name.isBlank() || email.isBlank() || password.isBlank()) {
                         Toast.makeText(context, R.string.fill_required_fields, Toast.LENGTH_SHORT).show()
                         return@Button
                     }
-                    if (normalizedGender !in setOf("F", "M")) {
+                    if (selectedGender == null) {
                         Toast.makeText(context, R.string.invalid_gender, Toast.LENGTH_SHORT).show()
                         return@Button
                     }
@@ -96,8 +145,8 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
                                     username = name.trim(),
                                     email = email.trim(),
                                     password = password,
-                                    gender = normalizedGender,
-                                    birthDate = "${birthDay.trim()}T00:00:00"
+                                    gender = selectedGender,
+                                    birthDate = "${birthDate}T00:00:00"
                                 )
                             )
                             Toast.makeText(context, R.string.registration_success, Toast.LENGTH_LONG).show()
@@ -130,5 +179,47 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
         TextButton(onClick = { navController.navigate("login") }) {
             Text(stringResource(R.string.login_prompt))
         }
+    }
+}
+
+private fun formatBirthDate(digits: String): String = buildString {
+    digits.take(8).forEachIndexed { index, digit ->
+        append(digit)
+        if (index == 3 || index == 5) append('-')
+    }
+}
+
+private fun isValidBirthDate(value: String): Boolean {
+    val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).apply {
+        isLenient = false
+    }
+    val position = ParsePosition(0)
+    return formatter.parse(value, position) != null && position.index == value.length
+}
+
+private object BirthDateVisualTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val digits = text.text.take(8)
+        val formatted = formatBirthDate(digits)
+        val hasYearSeparator = digits.length >= 4
+        val hasMonthSeparator = digits.length >= 6
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                var result = offset
+                if (hasYearSeparator && offset >= 4) result++
+                if (hasMonthSeparator && offset >= 6) result++
+                return result.coerceIn(0, formatted.length)
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                var result = offset
+                if (hasYearSeparator && offset > 4) result--
+                if (hasMonthSeparator && offset > 7) result--
+                return result.coerceIn(0, digits.length)
+            }
+        }
+
+        return TransformedText(AnnotatedString(formatted), offsetMapping)
     }
 }

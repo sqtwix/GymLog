@@ -7,8 +7,11 @@
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>
     <string name="name_label">Name</string>
-    <string name="gender_label">Gender (F or M)</string>
-    <string name="birth_date_label">Date of birth (yyyy-MM-dd)</string>
+    <string name="gender_label">Gender</string>
+    <string name="gender_male">Male</string>
+    <string name="gender_female">Female</string>
+    <string name="birth_date_label">Date of birth</string>
+    <string name="birth_date_placeholder">YYYY-MM-DD</string>
     <string name="fill_all_fields">Fill in all fields</string>
     <string name="fill_required_fields">Fill in all required fields</string>
     <string name="invalid_gender">Enter F or M for gender.</string>

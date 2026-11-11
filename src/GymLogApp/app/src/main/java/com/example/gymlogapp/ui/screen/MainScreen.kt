@@ -44,8 +44,7 @@ fun MainScreen(
 
     val datePickerState = rememberDatePickerState()
 
-    // Загрузка тренировок
-    LaunchedEffect(workoutRepository) {
+    LaunchedEffect(Unit) {
         try {
             trains = workoutRepository.getWorkouts()
         } catch (e: CancellationException) {
@@ -61,7 +60,6 @@ fun MainScreen(
 
     Column(modifier = Modifier.fillMaxSize()) {
 
-        // Верхняя панель
         Surface(
             color = MaterialTheme.colorScheme.surface,
             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -134,7 +132,6 @@ fun MainScreen(
         }
     }
 
-    // Диалог
     if (showDialog && selectedDateStr != null) {
 
         val dateStr = selectedDateStr!!

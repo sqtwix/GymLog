@@ -30,7 +30,6 @@ class WorkoutRepository(
     }
 
     private fun HttpRequestBuilder.authorize() {
-        // Read for every request so login/logout never leaves a cached bearer token.
         tokenStore.getToken()?.takeIf { it.isNotBlank() }?.let { bearerAuth(it) }
     }
 }

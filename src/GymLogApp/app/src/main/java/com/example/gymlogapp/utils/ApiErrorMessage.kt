@@ -8,7 +8,6 @@ import io.ktor.client.plugins.ServerResponseException
 import kotlinx.serialization.SerializationException
 import java.io.IOException
 
-/** Converts transport/API failures into short messages suitable for the UI. */
 fun getErrorMessage(context: Context, error: Throwable): String = when (error) {
     is ClientRequestException -> when (error.response.status.value) {
         400 -> context.getString(R.string.error_bad_request)
