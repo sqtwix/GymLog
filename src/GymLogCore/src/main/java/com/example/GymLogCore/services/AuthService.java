@@ -8,6 +8,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import com.example.GymLogCore.domain.*;
 
 import java.time.LocalDateTime;
@@ -24,12 +26,16 @@ public class AuthService {
     */
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("User with this email already existed!");
+        if (request.email() == null || request.email().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        }
+        String email = request.email().trim();
+        if (userRepository.findByEmailIgnoreCase(email).isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Account with this email already exists");
         }
 
         User user = new User();
-        user.setEmail(request.email());
+        user.setEmail(email);
         user.setUsername(request.username());
         user.setBirthDate(request.birthDate());
 
@@ -49,11 +55,16 @@ public class AuthService {
     * User authorization
     */
     public AuthResponse login(LoginRequest request){
-        User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new RuntimeException("Incorrect login or email"));
+        if (request.email() == null || request.email().isBlank() ||
+                request.password() == null || request.password().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+        }
+        String email = request.email().trim();
+        User user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
         if (!passwordEncoder.matches(request.password(), user.getHashedPassword())) {
-            throw new RuntimeException("Incorrect mail or passowrd");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
 
         String jwtToken = jwtService.generateToken(user);

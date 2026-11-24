@@ -16,6 +16,8 @@ class AuthRepository(
     private val tokenStore: TokenStore
 ) {
     suspend fun login(email: String, password: String): LoginResponse {
+        // A failed login must not leave a previous session token in storage.
+        tokenStore.clearToken()
         val response = client.post("api/auth/login") {
             contentType(ContentType.Application.Json)
             setBody(LoginRequest(email, password))

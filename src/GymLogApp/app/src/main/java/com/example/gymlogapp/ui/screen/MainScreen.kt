@@ -2,7 +2,9 @@ package com.example.gymlogapp.ui.screen
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +20,7 @@ import com.example.gymlogapp.repository.WorkoutRepository
 import com.example.gymlogapp.model.CreateTrainRequest
 import com.example.gymlogapp.model.TrainResponse
 import com.example.gymlogapp.utils.getErrorMessage
+import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -49,6 +52,16 @@ fun MainScreen(
             trains = workoutRepository.getWorkouts()
         } catch (e: CancellationException) {
             throw e
+        } catch (e: ClientRequestException) {
+            if (e.response.status.value == 401 || e.response.status.value == 403) {
+                authRepository.logout()
+                navController.navigate("login") {
+                    popUpTo("main") { inclusive = true }
+                    launchSingleTop = true
+                }
+            } else {
+                Toast.makeText(context, getErrorMessage(context, e), Toast.LENGTH_LONG).show()
+            }
         } catch (e: Exception) {
             Toast.makeText(context, getErrorMessage(context, e), Toast.LENGTH_LONG).show()
         } finally {
@@ -58,7 +71,11 @@ fun MainScreen(
 
     val username = stringResource(R.string.placeholder_user_name)
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
 
         Surface(
             color = MaterialTheme.colorScheme.surface,
@@ -89,7 +106,7 @@ fun MainScreen(
         }
 
         if (isLoading) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxWidth().height(300.dp), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
             return@Column
@@ -103,6 +120,7 @@ fun MainScreen(
             elevation = CardDefaults.cardElevation(8.dp)
         ) {
             DatePicker(
+                modifier = Modifier.heightIn(max = 420.dp),
                 state = datePickerState,
                 showModeToggle = false,
                 colors = DatePickerDefaults.colors(

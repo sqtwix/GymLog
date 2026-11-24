@@ -35,6 +35,7 @@ import com.example.gymlogapp.R
 import com.example.gymlogapp.repository.AuthRepository
 import com.example.gymlogapp.ui.components.GymLogLogo
 import com.example.gymlogapp.utils.getErrorMessage
+import io.ktor.client.plugins.ClientRequestException
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -110,6 +111,13 @@ fun LoginScreen(navController: NavController, authRepository: AuthRepository) {
                             }
                         } catch (e: CancellationException) {
                             throw e
+                        } catch (e: ClientRequestException) {
+                            errorMessage = if (e.response.status.value == 401 || e.response.status.value == 403) {
+                                context.getString(R.string.error_unauthorized)
+                            } else {
+                                getErrorMessage(context, e)
+                            }
+                            Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                         } catch (e: Exception) {
                             errorMessage = getErrorMessage(context, e)
                             Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
