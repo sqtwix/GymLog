@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 fun LoginScreen(navController: NavController, authRepository: AuthRepository) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var showValidationErrors by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -73,7 +74,8 @@ fun LoginScreen(navController: NavController, authRepository: AuthRepository) {
             onValueChange = { email = it },
             label = { Text(stringResource(R.string.email_label)) },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = showValidationErrors && email.isBlank()
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -84,7 +86,8 @@ fun LoginScreen(navController: NavController, authRepository: AuthRepository) {
             label = { Text(stringResource(R.string.password_label)) },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            isError = showValidationErrors && password.isBlank()
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -95,16 +98,18 @@ fun LoginScreen(navController: NavController, authRepository: AuthRepository) {
             Button(
                 onClick = {
                     if (email.isBlank() || password.isBlank()) {
-                        Toast.makeText(context, R.string.fill_all_fields, Toast.LENGTH_SHORT).show()
+                        showValidationErrors = true
+                        Toast.makeText(context, R.string.fill_all_fields, Toast.LENGTH_LONG).show()
                         return@Button
                     }
 
+                    showValidationErrors = false
                     coroutineScope.launch {
                         isLoading = true
                         errorMessage = ""
                         try {
                             authRepository.login(email, password)
-                            Toast.makeText(context, R.string.login_success, Toast.LENGTH_SHORT)
+                            Toast.makeText(context, R.string.login_success, Toast.LENGTH_LONG)
                                 .show()
                             navController.navigate("main") {
                                 popUpTo("login") { inclusive = true }

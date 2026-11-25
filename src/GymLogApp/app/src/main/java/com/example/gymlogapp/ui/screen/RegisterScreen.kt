@@ -49,11 +49,15 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
     var password by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf<String?>(null) }
     var birthDateDigits by remember { mutableStateOf("") }
+    var showValidationErrors by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val formattedBirthDate = formatBirthDate(birthDateDigits)
+    val isBirthDateValid = birthDateDigits.length == 8 && isValidBirthDate(formattedBirthDate)
+    val hasRequiredTextFields = name.isNotBlank() && email.isNotBlank() && password.isNotBlank()
 
     Column(
         modifier = Modifier
@@ -74,16 +78,39 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(value = name, onValueChange = { name = it }, label = { Text(stringResource(R.string.name_label)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = name,
+            onValueChange = { name = it },
+            label = { Text(stringResource(R.string.name_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            isError = showValidationErrors && name.isBlank()
+        )
         Spacer(modifier = Modifier.height(12.dp))
-        OutlinedTextField(value = email, onValueChange = { email = it }, label = { Text(stringResource(R.string.email_label)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text(stringResource(R.string.email_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            isError = showValidationErrors && email.isBlank()
+        )
         Spacer(modifier = Modifier.height(12.dp))
-        OutlinedTextField(value = password, onValueChange = { password = it }, label = { Text(stringResource(R.string.password_label)) }, modifier = Modifier.fillMaxWidth())
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text(stringResource(R.string.password_label)) },
+            modifier = Modifier.fillMaxWidth(),
+            isError = showValidationErrors && password.isBlank()
+        )
         Spacer(modifier = Modifier.height(12.dp))
         Text(
             text = stringResource(R.string.gender_label),
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            color = if (showValidationErrors && gender == null) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            }
         )
         Spacer(modifier = Modifier.height(8.dp))
         Row(
@@ -118,6 +145,8 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
                         width = if (isSelected) 2.dp else 1.dp,
                         color = if (isSelected) {
                             MaterialTheme.colorScheme.primary
+                        } else if (showValidationErrors && gender == null) {
+                            MaterialTheme.colorScheme.error
                         } else {
                             MaterialTheme.colorScheme.outlineVariant
                         }
@@ -166,7 +195,8 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            visualTransformation = BirthDateVisualTransformation
+            visualTransformation = BirthDateVisualTransformation,
+            isError = showValidationErrors && !isBirthDateValid
         )
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -176,22 +206,23 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
         } else {
             Button(
                 onClick = {
-                    val birthDate = formatBirthDate(birthDateDigits)
+                    val birthDate = formattedBirthDate
                     val selectedGender = gender
-                    val validBirthDate = birthDateDigits.length == 8 && isValidBirthDate(birthDate)
-                    if (name.isBlank() || email.isBlank() || password.isBlank()) {
-                        Toast.makeText(context, R.string.fill_required_fields, Toast.LENGTH_SHORT).show()
+                    showValidationErrors = true
+                    if (!hasRequiredTextFields) {
+                        Toast.makeText(context, R.string.fill_required_fields, Toast.LENGTH_LONG).show()
                         return@Button
                     }
                     if (selectedGender == null) {
-                        Toast.makeText(context, R.string.invalid_gender, Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, R.string.invalid_gender, Toast.LENGTH_LONG).show()
                         return@Button
                     }
-                    if (!validBirthDate) {
-                        Toast.makeText(context, R.string.invalid_birth_date, Toast.LENGTH_SHORT).show()
+                    if (!isBirthDateValid) {
+                        Toast.makeText(context, R.string.invalid_birth_date, Toast.LENGTH_LONG).show()
                         return@Button
                     }
 
+                    showValidationErrors = false
                     coroutineScope.launch {
                         isLoading = true
                         errorMessage = ""
