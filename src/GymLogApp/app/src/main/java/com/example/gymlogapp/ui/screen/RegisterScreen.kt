@@ -1,16 +1,21 @@
 package com.example.gymlogapp.ui.screen
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
@@ -19,6 +24,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.gymlogapp.R
@@ -76,26 +86,72 @@ fun RegisterScreen(navController: NavController, authRepository: AuthRepository)
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
             listOf(
-                "M" to R.string.gender_male,
-                "F" to R.string.gender_female
-            ).forEach { (code, labelRes) ->
-                Row(
+                Triple("M", R.string.gender_male, R.drawable.male_sign),
+                Triple("F", R.string.gender_female, R.drawable.female_sign)
+            ).forEach { (code, labelRes, imageRes) ->
+                val isSelected = gender == code
+                val cardShape = RoundedCornerShape(20.dp)
+
+                Card(
                     modifier = Modifier
                         .weight(1f)
+                        .height(124.dp)
                         .selectable(
-                            selected = gender == code,
+                            selected = isSelected,
                             onClick = { gender = code },
                             role = Role.RadioButton
                         ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = gender == code,
-                        onClick = null
+                    shape = cardShape,
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primary.copy(alpha = 0.10f)
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        }
+                    ),
+                    border = BorderStroke(
+                        width = if (isSelected) 2.dp else 1.dp,
+                        color = if (isSelected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        }
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = if (isSelected) 3.dp else 0.dp
                     )
-                    Text(stringResource(labelRes))
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(cardShape)
+                            .padding(12.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Image(
+                            painter = painterResource(imageRes),
+                            contentDescription = stringResource(labelRes),
+                            modifier = Modifier.size(88.dp),
+                            contentScale = ContentScale.Fit
+                        )
+                        if (isSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .size(24.dp)
+                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                    .padding(4.dp)
+                            )
+                        }
+                    }
                 }
             }
         }
